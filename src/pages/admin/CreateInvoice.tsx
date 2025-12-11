@@ -969,8 +969,6 @@ const CreateInvoice: React.FC = () => {
             </div>
           </section>
 
-         
-
           {topError && <div className={styles.formError}>{topError}</div>}
         </form>
       </div>
