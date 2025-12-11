@@ -1,0 +1,200 @@
+.wrapper {
+  padding: 20px 24px 32px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Create button */
+.createBtn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
+  transition: transform 0.08s ease, box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.createBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.55);
+  filter: brightness(1.03);
+}
+
+/* Table card */
+.tableCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.tableHeaderRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tableMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tableTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tableCount {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Table */
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead tr {
+  background: #f9fafb;
+}
+
+.table th,
+.table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.table tbody tr:hover {
+  background: #f3f4ff;
+}
+
+/* Status badge */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.statusPaid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusUnpaid {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.statusPartial {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusDraft {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+/* Actions */
+.actionsCol {
+  text-align: right;
+}
+
+.linkBtn {
+  border: none;
+  background: transparent;
+  padding: 4px 6px;
+  font-size: 12px;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.linkBtn:hover {
+  background: #e0edff;
+  color: #1d4ed8;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 18px 10px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .createBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wrapper {
+    padding: 16px;
+  }
+
+  .tableCard {
+    padding: 12px;
+  }
+}
