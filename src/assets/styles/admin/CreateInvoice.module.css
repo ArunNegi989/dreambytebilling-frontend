@@ -1,0 +1,319 @@
+/* src/assets/styles/admin/CreateInvoice.module.css */
+
+/* Page grid */
+.page {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  padding: 20px;
+  min-height: calc(100vh - 40px);
+  box-sizing: border-box;
+  align-items: start;
+  background: #f6f8fb;
+}
+
+/* responsive */
+@media (max-width: 980px) {
+  .page { grid-template-columns: 1fr; }
+  .right { position: relative; order: 2; }
+  .left { order: 1; }
+}
+
+/* left column */
+.left { width: 100%; }
+
+/* ---------- INVOICE HEADER (top area) ---------- */
+.invoiceHeaderCard {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(10,20,60,0.04);
+  margin-bottom: 12px;
+}
+
+/* left block */
+.headerLeft {
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* center logo */
+.headerCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logoPlaceholder {
+  text-align: center;
+  font-weight: 800;
+  color: #111;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* right block */
+.headerRight {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* small label used in header */
+.smallLabel {
+  font-size: 0.72rem;
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+/* inputs in header - force white background and dark text */
+.headerInput,
+.headerAddress,
+input,
+textarea,
+select {
+  background: #ffffff;         /* white background for normal look */
+  color: #111;                 /* dark text */
+  border: 1px solid #e6e6e6;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* header textarea / address */
+.headerAddress {
+  resize: vertical;
+  min-height: 64px;
+}
+
+/* focus states for accessibility */
+.headerInput:focus,
+.headerAddress:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #99c0ff;
+  box-shadow: 0 6px 18px rgba(10,90,230,0.06);
+}
+
+/* ---------- PAGE HEADER (title + actions) ---------- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.title { margin: 0; font-size: 1.25rem; color:#111; }
+.subtitle { margin: 2px 0 0; color: #555; font-size: 0.9rem; }
+
+/* header actions */
+.headerActions { display:flex; gap:8px; align-items:center; }
+.primary {
+  background: linear-gradient(180deg,#0b6cff,#0456d9);
+  color: white; padding: 8px 12px; border: none; border-radius: 8px;
+  cursor: pointer; font-weight: 600;
+  box-shadow: 0 6px 12px rgba(5,80,200,0.12);
+}
+.primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+.ghost { background: transparent; border: 1px solid #e6e6e6; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+
+/* ---------- FORM / CARDS ---------- */
+.form { display:flex; flex-direction:column; gap:12px; }
+.card {
+  background: #fff; border-radius: 10px; padding: 12px; box-shadow: 0 6px 18px rgba(8, 20, 40, 0.04);
+}
+
+/* meta-row for grouped inputs (IRN / ACK / GSTIN etc) */
+.metaRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+.metaRow label { flex: 1; display:flex; flex-direction:column; gap:6px; }
+
+/* rows / fields */
+.row { display:flex; gap: 12px; margin-bottom: 8px; flex-wrap:wrap; }
+.field { display:flex; flex-direction:column; flex:1; min-width: 140px; }
+.fieldFull { display:flex; flex-direction:column; width:100%; }
+.label { font-size: 0.8rem; color:#333; margin-bottom:6px; font-weight:600; }
+
+/* make sure default inputs are white and not dark-themed */
+input, textarea, select {
+  background: #ffffff;
+  color: #111;
+  border: 1px solid #e6e6e6;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+textarea { resize: vertical; }
+
+/* small hint / validation label */
+.hint { color:#d00; font-size:0.8rem; margin-top:6px; display:block; }
+
+/* ---------- ITEMS TABLE ---------- */
+.itemsHeader { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.itemsHeaderActions { display:flex; gap:8px; align-items:center; }
+
+.addSmall, .addBtn {
+  background:#eef9ff; border:1px solid #cfeaff; padding:6px 10px; border-radius:8px; cursor:pointer;
+}
+
+/* grid header + rows */
+.itemsTable { display:flex; flex-direction:column; gap:6px; }
+
+.itemsGridHeader, .itemRow {
+  display: grid;
+  grid-template-columns: 36px 1fr 120px 2fr 120px 120px 120px 110px 110px 44px;
+  gap:8px;
+  align-items:center;
+}
+.itemsGridHeader { font-size:0.85rem; color:#444; padding:8px; background:#f7f9fc; border-radius:8px; }
+.itemRow { padding:8px; border-radius:8px; border:1px solid transparent; background:linear-gradient(180deg,#fff,#fff); transition: transform .15s ease, box-shadow .2s ease; }
+.itemRow:hover { transform: translateY(-4px); box-shadow: 0 8px 18px rgba(12,30,80,0.06); }
+
+/* invalid highlight */
+.invalidRow { border-color: #ffb2b2; background: linear-gradient(180deg,#fff6f6,#fff); }
+
+/* item cells */
+.itemIndex { text-align:center; color:#333; font-weight:600; }
+.itemSmall { padding:6px 8px; border-radius:6px; width:100%; box-sizing:border-box; }
+.itemDesc { padding:6px 8px; border-radius:6px; width:100%; box-sizing:border-box; }
+.itemQty { width:70px; padding:6px; box-sizing:border-box; }
+.itemDate { width:120px; padding:6px; box-sizing:border-box; }
+.itemRate { width:110px; padding:6px; box-sizing:border-box; }
+.itemAmount { text-align:right; font-weight:600; color:#111; }
+
+/* small action buttons */
+.itemActionsCell { display:flex; gap:6px; align-items:center; justify-self:center; }
+.iconBtn { background:transparent; border:none; cursor:pointer; font-size:0.95rem; padding:6px; border-radius:6px; }
+.removeSmall { background:#fff0f0; border:1px solid #ffd2d2; padding:6px 8px; border-radius:6px; cursor:pointer; }
+
+/* expanded details area */
+.expandedRow {
+  grid-column: 1 / -1;
+  display:flex; justify-content:space-between; gap:12px; margin-top:8px; padding:8px; border-radius:6px;
+  background:#fbfbff; border:1px dashed #e9eefb;
+}
+.expLabel { display:block; font-size:0.78rem; color:#666; margin-bottom:4px; }
+.smallMuted { color:#999; font-size:0.9rem; }
+
+/* ---------- SUMMARY (right column) ---------- */
+.right { position: sticky; top: 24px; align-self:start; }
+.summaryCard { background:#fff; padding:14px; border-radius:10px; box-shadow: 0 10px 30px rgba(10,20,60,0.06); width:100%; }
+.summaryCard h3 { margin:0 0 8px 0; font-size:1.05rem; color:#111; }
+.summaryRow { display:flex; justify-content:space-between; padding:6px 0; color:#333; }
+.summaryTotal { display:flex; justify-content:space-between; margin-top:8px; border-top:1px dashed #eee; padding-top:8px; font-weight:700; }
+.big { font-size:1.1rem; font-weight:700; }
+.summaryActions { display:flex; gap:8px; margin-top:12px; }
+.primaryFull { width:100%; background:linear-gradient(180deg,#0b6cff,#0456d9); color:white; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:700; }
+.ghostFull { width:100%; padding:8px; border-radius:8px; background:transparent; border:1px solid #e6e6e6; cursor:pointer; }
+
+/* hints & errors */
+.formError { margin-top:8px; color:#b00020; background:#fff0f0; padding:8px; border-radius:6px; border:1px solid #ffd2d2; }
+.smallHint { margin-top:8px; color:#7a5b00; font-size:0.9rem; }
+
+/* buttons */
+.saveBtn, .cancelBtn { padding:8px 14px; border-radius:8px; border:none; cursor:pointer; }
+.addBtn { padding:8px 12px; border-radius:8px; background:#eef9ff; border:1px solid #cfeaff; cursor:pointer; }
+
+/* final touches */
+label { font-family: inherit; color: #222; }
+button { font-family: inherit; }
+/* Billing / Ship layout */
+.billingSection {
+  display: grid;
+  grid-template-columns: 1fr 534px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* responsive: collapse to single column on small screens */
+@media (max-width: 980px) {
+  .billingSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* columns */
+.columnLeft { min-width: 0; } /* allows input to shrink nicely */
+.columnRight { min-width: 0; }
+
+/* section header (title + small subtitle) */
+.sectionHeader {
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.sectionTitle { font-weight:700; font-size: 1rem; color: #111; }
+.sectionSubtitle { font-size: 12px; color: #666; }
+
+/* form field uniform spacing */
+.formField { display:flex; flex-direction:column; gap:6px; margin-bottom: 10px; }
+.label { font-size: 0.82rem; color: #333; margin-bottom:6px; font-weight:600; }
+
+/* text input unified style (uses existing input rules but helpful wrapper) */
+.textInput {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #111;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+/* textarea specific */
+.textarea { min-height: 76px; padding: 8px 10px; border-radius:8px; border:1px solid #e6e6e6; background:#fff; color:#111; }
+
+/* small date inputs inline */
+.rowGrid { display:flex; gap:12px; align-items:center; }
+.inlineDates { display:flex; gap:8px; }
+.smallDate { padding: 8px 10px; border-radius:8px; border:1px solid #e6e6e6; background:#fff; color:#111; }
+
+/* same as billing checkbox styling */
+.sameAsBilling { display:flex; align-items:center; gap:8px; font-size:0.9rem; color:#444; }
+
+/* make the right column inputs fit nicely */
+.columnRight .textInput { font-size: 0.92rem; }
+
+/* smaller label for inline select/inputs */
+.columnRight .label { font-size: 0.82rem; }
+
+/* subtle visual separation for the section (card already provides background) */
+.card { padding: 14px; }
+
+/* ensure disabled inputs remain white and readable */
+input[disabled], textarea[disabled], select[disabled] {
+  background: #fafafa;
+  color: #333;
+}
+
+/* tweak mobile spacing */
+@media (max-width: 600px) {
+  .sectionSubtitle { display: none; }
+  .columnRight { width: 100%; }
+}
+
+/* print optimization */
+@media print {
+  .page { grid-template-columns: 1fr; }
+  .right { display: none; }
+  .headerActions { display: none; }
+  .invoiceHeaderCard { box-shadow: none; }
+  .card { box-shadow: none; border: 0; }
+}

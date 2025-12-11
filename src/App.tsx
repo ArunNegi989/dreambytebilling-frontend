@@ -1,9 +1,11 @@
-// src/App.tsx (example)
+// src/App.tsx
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Invoices from "./pages/admin/Invoices";
+import CreateInvoice from "./pages/admin/CreateInvoice";
 import Login from "./pages/auth/Login";
 
 function AppRoutes() {
@@ -26,12 +28,16 @@ function AppRoutes() {
 
         {/* /admin/invoices */}
         <Route path="invoices" element={<Invoices />} />
-        
 
-        {/* ...baaki nested routes yahan */}
+        {/* /admin/invoices/create */}
+        <Route path="invoices/create" element={<CreateInvoice />} />
+
+
+        {/* ...add other nested admin routes here */}
       </Route>
 
-      {/* fallback, etc. */}
+      {/* fallback / 404 can go here */}
+      <Route path="*" element={<Login />} />
     </Routes>
   );
 }
