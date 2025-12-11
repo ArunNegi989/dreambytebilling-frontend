@@ -179,6 +179,9 @@ const CreateInvoice: React.FC = () => {
 const [shipToName, setShipToName] = useState("");
 const [shipToAddress, setShipToAddress] = useState("");
 const [sameAsBilling, setSameAsBilling] = useState(false);
+const [sector, setSector] = useState("");
+const [pincode, setPincode] = useState("");
+
   // placeOfSupply reused above
   const [receiverGstin, setReceiverGstin] = useState("");
 
@@ -188,10 +191,7 @@ const [sameAsBilling, setSameAsBilling] = useState(false);
   const [accountNo, setAccountNo] = useState("025051000008");
   const [ifsc, setIfsc] = useState("ICIC0000250");
   const [branch, setBranch] = useState("Sector-5 Dwarka New Delhi-110075");
-  const [notes, setNotes] = useState(
-    "1. All payments to be made by Payee A/c Cheque/Draft in favour of Media 24x7 Advertising Pvt. Ltd.\n2. No dispute of any nature will be valid unless brought to our notice within 7 days."
-  );
-
+ 
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState<string | null>(null);
   const [expandedItem, setExpandedItem] = useState<Record<string, boolean>>({});
@@ -292,7 +292,6 @@ useEffect(() => {
       totals: { subtotal, igst, cgst, sgst, grandTotal },
       amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
       bank: { bankName, accountNo, ifsc, branch },
-      notes,
       footerAddress: officeAddress,
     };
 
@@ -567,52 +566,103 @@ useEffect(() => {
 
           {/* heading "towards charges..." */}
           <section className={styles.card}>
-            <div style={{ fontWeight: 700, marginBottom: 8 }}>
+            <div className={styles.itemTableheading} style={{ fontWeight: 700, marginBottom: 8 }}>
               Towards charges for sale of advertising space in outdoor media as per following details:
             </div>
 
             {/* Items table */}
             <div className={styles.itemsTable}>
-              <div className={styles.itemsGridHeader}>
-                <div>S.N.</div>
-                <div>Location</div>
-                <div>SAC/HSN</div>
-                <div>Specification</div>
-                <div>City</div>
-                <div>Start Date</div>
-                <div>End Date</div>
-                <div>Rate (PM)/SQFT</div>
-                <div>Amount</div>
-                <div />
-              </div>
+  {/* ---- TABLE HEADER ---- */}
+  <div className={styles.itemsGridHeader}>
+    <div>S.N.</div>
+    <div>Location</div>
+    <div>SAC/HSN</div>
+    <div>Qty</div>
+    <div>Note</div>
+    <div>Rate (PM/SQFT)</div>
+    <div>Amount</div>
+    <div />
+  </div>
 
-              {items.map((it, idx) => {
-                const isInvalid =
-                  !it.location.trim() || !it.sacHsn.trim() || !it.specification.trim() || it.qty <= 0;
-                return (
-                  <div key={it.id} className={`${styles.itemRow} ${isInvalid ? styles.invalidRow : ""}`}>
-                    <div className={styles.itemIndex}>{idx + 1}</div>
-                    <input className={styles.itemSmall} placeholder="Location" value={it.location} onChange={(e) => updateItem(it.id, { location: e.target.value })} />
-                    <input className={styles.itemSmall} placeholder="SAC/HSN" value={it.sacHsn} onChange={(e) => updateItem(it.id, { sacHsn: e.target.value })} />
-                    <input className={styles.itemDesc} placeholder="Specification" value={it.specification} onChange={(e) =>
-                      updateItem(it.id, { specification: e.target.value })
-                    } />
-                    <input className={styles.itemSmall} placeholder="City" value={it.city} onChange={(e) => updateItem(it.id, { city: e.target.value })} />
-                    <input type="date" className={styles.itemDate} value={it.startDate || ""} onChange={(e) => updateItem(it.id, { startDate: e.target.value })} />
-                    <input type="date" className={styles.itemDate} value={it.endDate || ""} onChange={(e) => updateItem(it.id, { endDate: e.target.value })} />
-                    <input type="number" min={0} step="0.01" className={styles.itemRate} value={it.rate} onChange={(e) => updateItem(it.id, { rate: Number(e.target.value) || 0 })} />
-                    <div className={styles.itemAmount}>{formatCurrency(it.amount || 0)}</div>
-                    <div className={styles.itemActionsCell}>
-                      <button type="button" className={styles.removeSmall} onClick={() => removeItem(it.id)}>✕</button>
-                    </div>
-                  </div>
-                );
-              })}
+  {/* ---- TABLE ROWS ---- */}
+  {items.map((it, idx) => {
+    const isInvalid =
+      !it.location.trim() || !it.sacHsn.trim() || !it.specification.trim() || it.qty <= 0;
 
-              <div style={{ marginTop: 8 }}>
-                <button type="button" className={styles.addBtn} onClick={addItem}>+ Add Item</button>
-              </div>
-            </div>
+    return (
+      <div key={it.id} className={`${styles.itemRow} ${isInvalid ? styles.invalidRow : ""}`}>
+        <div className={styles.itemIndex}>{idx + 1}</div>
+
+        {/* Location */}
+        <input
+          className={styles.itemSmall}
+          placeholder="Location"
+          value={it.location}
+          onChange={(e) => updateItem(it.id, { location: e.target.value })}
+        />
+
+        {/* SAC/HSN */}
+        <input
+          className={styles.itemSmall}
+          placeholder="SAC/HSN"
+          value={it.sacHsn}
+          onChange={(e) => updateItem(it.id, { sacHsn: e.target.value })}
+        />
+
+        {/* Qty */}
+        <input
+          type="number"
+          min={1}
+          className={styles.itemQty}
+          placeholder="Qty"
+          value={it.qty}
+          onChange={(e) => updateItem(it.id, { qty: Number(e.target.value) || 0 })}
+        />
+
+        {/* Note / Description */}
+        <input
+          className={styles.itemDesc}
+          placeholder="Enter Note"
+          value={it.specification}
+          onChange={(e) => updateItem(it.id, { specification: e.target.value })}
+        />
+
+        {/* Rate */}
+        <input
+          type="number"
+          min={0}
+          step="0.01"
+          className={styles.itemRate}
+          placeholder="Rate"
+          value={it.rate}
+          onChange={(e) => updateItem(it.id, { rate: Number(e.target.value) || 0 })}
+        />
+
+        {/* Amount */}
+        <div className={styles.itemAmount}>{formatCurrency(it.amount || 0)}</div>
+
+        {/* Actions */}
+        <div className={styles.itemActionsCell}>
+          <button
+            type="button"
+            className={styles.removeSmall}
+            onClick={() => removeItem(it.id)}
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    );
+  })}
+
+  {/* ---- ADD BUTTON ---- */}
+  <div style={{ marginTop: 8 }}>
+    <button type="button" className={styles.addBtn} onClick={addItem}>
+      + Add Item
+    </button>
+  </div>
+</div>
+
           </section>
 
           {/* Display charges area & totals words */}
@@ -623,7 +673,7 @@ useEffect(() => {
                 <div style={{ marginTop: 10, color: "#555" }}>Rupees in words: <strong>{numberToWords(Math.floor(grandTotal))} Only</strong></div>
               </div>
 
-              <div style={{ minWidth: 260, textAlign: "right" }}>
+              <div style={{ minWidth: 260, textAlign: "right" ,color:"#000" }}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <div>Total Taxable Value:</div>
                   <div>{formatCurrency(subtotal)}</div>
@@ -640,9 +690,9 @@ useEffect(() => {
                   <div>SGST @9%:</div>
                   <div>{formatCurrency(sgst)}</div>
                 </div>
-                <div style={{ borderTop: "1px solid #eee", marginTop: 8, paddingTop: 8, fontWeight: 700 }}>
+                <div style={{ borderTop: "1px solid #050505ff", marginTop: 8, paddingTop: 8, fontWeight: 700 ,color:"#000" }}>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <div>Grand Total</div>
+                    <div >Grand Total</div>
                     <div>{formatCurrency(grandTotal)}</div>
                   </div>
                 </div>
@@ -651,32 +701,77 @@ useEffect(() => {
           </section>
 
           {/* Bank, Terms & Receiver signature */}
-          <section className={styles.card}>
-            <div className={styles.row}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, marginBottom: 6 }}>Our Bank Details</div>
-                <div>Bank Name: <strong>{bankName}</strong></div>
-                <div>A/C No.: <strong>{accountNo}</strong></div>
-                <div>IFSC: <strong>{ifsc}</strong></div>
-                <div>Branch: <strong>{branch}</strong></div>
-              </div>
+<section className={styles.card}>
+  <div className={styles.row}>
 
-              <div style={{ width: 320, marginLeft: 16 }}>
-                <div style={{ fontWeight: 700 }}>Receiver's Signature</div>
-                <div style={{ height: 72, border: "1px dashed #ddd", marginTop: 8, borderRadius: 6, padding: 8 }}>
-                  <i>Receiver signature area</i>
-                </div>
-                <div style={{ marginTop: 8, textAlign: "right", fontWeight: 700 }}>
-                  For MEDIA 24X7 ADVERTISING PVT. LTD.
-                </div>
-              </div>
-            </div>
+    {/* LEFT: Editable Bank Fields */}
+    <div style={{ flex: 1 }}>
+      <div style={{ fontWeight: 700, marginBottom: 12 , color:"#000"}}>Our Bank Details</div>
 
-            <div style={{ marginTop: 12 }}>
-              <div style={{ fontWeight: 700, marginBottom: 6 }}>Terms & Conditions</div>
-              <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ width: "100%", borderRadius: 6, padding: 8 }} />
-            </div>
-          </section>
+      <div className={styles.bankGrid}>
+        <label>
+          <div className={styles.label}>Bank Name</div>
+          <input
+            value={bankName}
+            onChange={(e) => setBankName(e.target.value)}
+            placeholder="Enter Bank Name"
+          />
+        </label>
+
+        <label>
+          <div className={styles.label}>A/C Number</div>
+          <input
+            value={accountNo}
+            onChange={(e) => setAccountNo(e.target.value)}
+            placeholder="Enter Account Number"
+          />
+        </label>
+
+        <label>
+          <div className={styles.label}>IFSC Code</div>
+          <input
+            value={ifsc}
+            onChange={(e) => setIfsc(e.target.value)}
+            placeholder="Enter IFSC Code"
+          />
+        </label>
+
+        <label>
+          <div className={styles.label}>Branch</div>
+          <input
+            value={branch}
+            onChange={(e) => setBranch(e.target.value)}
+            placeholder="Enter Branch Name"
+          />
+        </label>
+
+        <label>
+          <div className={styles.label}>Sector</div>
+          <input
+            value={sector}
+            onChange={(e) => setSector(e.target.value)}
+            placeholder="Enter Sector"
+          />
+        </label>
+
+        <label>
+          <div className={styles.label}>Pincode</div>
+          <input
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value)}
+            placeholder="Enter Pincode"
+          />
+        </label>
+      </div>
+    </div>
+
+    {/* RIGHT: Receiver Signature */}
+   
+  </div>
+
+  
+</section>
+
 
           {/* Footer address line */}
           <section className={styles.card}>
@@ -703,7 +798,7 @@ useEffect(() => {
             <div className={styles.big}>{formatCurrency(grandTotal)}</div>
           </div>
 
-          <div style={{ marginTop: 12, fontSize: 14 }}>{numberToWords(Math.floor(grandTotal))} Rupees Only</div>
+    
 
           <div className={styles.summaryActions}>
             <button type="button" className={styles.primaryFull} onClick={handleSubmit} disabled={!!quickError || saving}>

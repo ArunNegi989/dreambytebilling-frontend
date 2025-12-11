@@ -125,7 +125,7 @@ select:focus {
   box-shadow: 0 6px 12px rgba(5,80,200,0.12);
 }
 .primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
-.ghost { background: transparent; border: 1px solid #e6e6e6; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.ghost { background: #830f32; border: 1px solid #e6e6e6; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
 
 /* ---------- FORM / CARDS ---------- */
 .form { display:flex; flex-direction:column; gap:12px; }
@@ -199,7 +199,7 @@ textarea { resize: vertical; }
 /* small action buttons */
 .itemActionsCell { display:flex; gap:6px; align-items:center; justify-self:center; }
 .iconBtn { background:transparent; border:none; cursor:pointer; font-size:0.95rem; padding:6px; border-radius:6px; }
-.removeSmall { background:#fff0f0; border:1px solid #ffd2d2; padding:6px 8px; border-radius:6px; cursor:pointer; }
+.removeSmall { background:#773131; border:1px solid #ffd2d2; padding:6px 8px; border-radius:6px; cursor:pointer; }
 
 /* expanded details area */
 .expandedRow {
@@ -215,7 +215,7 @@ textarea { resize: vertical; }
 .summaryCard { background:#fff; padding:14px; border-radius:10px; box-shadow: 0 10px 30px rgba(10,20,60,0.06); width:100%; }
 .summaryCard h3 { margin:0 0 8px 0; font-size:1.05rem; color:#111; }
 .summaryRow { display:flex; justify-content:space-between; padding:6px 0; color:#333; }
-.summaryTotal { display:flex; justify-content:space-between; margin-top:8px; border-top:1px dashed #eee; padding-top:8px; font-weight:700; }
+.summaryTotal { display:flex; justify-content:space-between; margin-top:8px; border-top:1px dashed #eee; padding-top:8px; font-weight:700;color: #111; }
 .big { font-size:1.1rem; font-weight:700; }
 .summaryActions { display:flex; gap:8px; margin-top:12px; }
 .primaryFull { width:100%; background:linear-gradient(180deg,#0b6cff,#0456d9); color:white; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:700; }
@@ -238,6 +238,191 @@ button { font-family: inherit; }
   grid-template-columns: 1fr 534px;
   gap: 20px;
   align-items: start;
+}
+.itemTableheading{
+    color: #111;
+}
+/* ===== Updated items table styles for new columns ===== */
+
+/* container for items table (already present, keep for safety) */
+.itemsTable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* grid header and rows — adjusted to new columns:
+   index | location | sac | qty | note | rate | amount | actions
+*/
+.itemsGridHeader,
+.itemRow {
+  display: grid;
+  grid-template-columns: 36px 2fr 120px 88px 2fr 120px 110px 44px;
+  gap: 10px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* header styling */
+.itemsGridHeader {
+  font-size: 0.86rem;
+  color: #333;
+  background: #f7f9fc;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #eef3fb;
+  font-weight: 600;
+}
+
+/* each row card */
+.itemRow {
+  padding: 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid transparent;
+  transition: transform .12s ease, box-shadow .14s ease;
+}
+.itemRow:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(12,30,80,0.06);
+}
+
+/* invalid row highlight */
+.invalidRow {
+  border-color: #ffdad6;
+  background: linear-gradient(180deg,#fff6f6,#fff);
+}
+
+/* index */
+.itemIndex {
+  text-align: center;
+  font-weight: 700;
+  color: #222;
+}
+
+/* small inputs (location, sac) */
+.itemSmall {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #111;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+}
+
+/* qty input (narrow) */
+.itemQty {
+  width: 80px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #111;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* note/description (wider) */
+.itemDesc {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #111;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+}
+
+/* rate input */
+.itemRate {
+  width: 110px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #111;
+  box-sizing: border-box;
+  text-align: right;
+}
+
+/* amount cell */
+.itemAmount {
+  text-align: right;
+  font-weight: 700;
+  color: #111;
+}
+
+/* actions cell */
+.itemActionsCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* remove button */
+.removeSmall {
+  background: #773131;
+  border: 1px solid #ffd6d6;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.removeSmall:hover { background: #ffecec; }
+
+/* add button */
+.addBtn {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #830f32;
+  border: 1px solid #cfeaff;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* small responsive tweaks */
+@media (max-width: 1100px) {
+  .itemsGridHeader, .itemRow {
+    grid-template-columns: 36px 1.6fr 110px 80px 1.6fr 100px 90px 36px;
+  }
+  .itemRate { width: 90px; }
+}
+
+@media (max-width: 760px) {
+  /* stack into fewer columns on small screens */
+  .itemsGridHeader, .itemRow {
+    grid-template-columns: 36px 1fr 1fr;
+    grid-auto-rows: auto;
+    grid-row-gap: 8px;
+  }
+
+  /* reorder and span cells when stacked */
+  .itemIndex { grid-column: 1 / 2; }
+  .itemSmall { grid-column: 2 / 4; }        /* location */
+  .itemSmall:nth-of-type(2) { grid-column: 2 / 4; } /* sac (will appear as next input) */
+  .itemQty { grid-column: 2 / 3; }
+  .itemDesc { grid-column: 2 / 4; }
+  .itemRate { grid-column: 2 / 3; }
+  .itemAmount { grid-column: 3 / 4; text-align: right; }
+  .itemActionsCell { grid-column: 3 / 4; justify-self: end; }
+}
+
+/* accessibility: focus outline */
+.itemSmall:focus, .itemQty:focus, .itemDesc:focus, .itemRate:focus {
+  outline: 2px solid rgba(12,110,255,0.12);
+  border-color: #9ec2ff;
+}
+
+/* ensure disabled fields are still readable */
+input[disabled], textarea[disabled], select[disabled] {
+  background: #fafafa;
+  color: #333;
 }
 
 /* responsive: collapse to single column on small screens */
@@ -301,6 +486,28 @@ button { font-family: inherit; }
 input[disabled], textarea[disabled], select[disabled] {
   background: #fafafa;
   color: #333;
+}
+.bankGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px 20px;
+  margin-bottom: 10px;
+}
+
+.bankGrid input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  background: #fff;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  color: #111;
+}
+
+.bankGrid input:focus {
+  outline: 2px solid rgba(0, 102, 255, 0.2);
+  border-color: #7bb6ff;
 }
 
 /* tweak mobile spacing */
