@@ -1,16 +1,20 @@
-// src/components/ProtectedRoute.tsx
 import React from "react";
 import { Navigate } from "react-router-dom";
 
-interface ProtectedRouteProps {
+interface Props {
   children: JSX.Element;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const token = localStorage.getItem("token");
+const ProtectedRoute: React.FC<Props> = ({ children }) => {
+  let user = null;
+  try {
+    const raw = localStorage.getItem("user");
+    user = raw ? JSON.parse(raw) : null;
+  } catch {
+    user = null;
+  }
 
-  if (!token) {
-    // Not logged in → go to /login
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 

@@ -26,6 +26,7 @@ function AppRoutes() {
 
         {/* /admin/invoices */}
         <Route path="invoices" element={<Invoices />} />
+        
 
         {/* ...baaki nested routes yahan */}
       </Route>
