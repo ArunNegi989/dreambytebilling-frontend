@@ -37,7 +37,7 @@ const Invoices: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const resp = await api.get("/api/invoices/getallinvoice");
+      const resp = await api.get("/api/invoice/getallinvoice");
       setInvoices(resp.data || []);
     } catch (err: any) {
       console.error("Failed to fetch invoices", err);

@@ -340,7 +340,7 @@ const CreateInvoice: React.FC = () => {
 
     try {
       setSaving(true);
-      const resp = await api.post("/api/invoices/createinvoice", payload);
+      const resp = await api.post("/api/invoice/createinvoice", payload);
       const savedInvoice = resp.data;
       const invoiceId = savedInvoice?._id || savedInvoice?.id;
       if (invoiceId) {
