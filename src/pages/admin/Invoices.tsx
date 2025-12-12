@@ -1,119 +1,98 @@
 // src/pages/admin/Invoices.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../assets/styles/admin/Invoices.module.css";
+import api from "../../api/axios";
 
 interface Invoice {
-  id: string;
-  number: string;
-  customerName: string;
-  date: string;
-  amount: number;
-  status: "PAID" | "UNPAID" | "PARTIAL" | "DRAFT";
+  _id: string;
+  invoiceNo: string;
+  billedTo?: any;
+  dateOfInvoice?: string;
+  totals?: { grandTotal?: number };
+  createdAt?: string;
 }
 
-const dummyInvoices: Invoice[] = [
-  { id: "1", number: "INV-1001", customerName: "Dreambyte Solutions", date: "2025-11-25", amount: 19470, status: "UNPAID" },
-  { id: "2", number: "INV-1002", customerName: "Acme Corp", date: "2025-10-02", amount: 5400, status: "PAID" },
-  { id: "3", number: "INV-1003", customerName: "Beta Traders", date: "2025-09-15", amount: 12000, status: "PARTIAL" },
-];
-
-const formatDate = (d: string) => {
+const formatDate = (d?: string) => {
+  if (!d) return "-";
   try {
-    const dt = new Date(d);
-    return dt.toLocaleDateString();
+    return new Date(d).toLocaleDateString();
   } catch {
     return d;
   }
 };
 
-const formatAmount = (n: number) => {
-  return `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
-
-const getStatusBadgeClass = (status: Invoice["status"]) => {
-  switch (status) {
-    case "PAID":
-      return styles.statusPaid;
-    case "UNPAID":
-      return styles.statusUnpaid;
-    case "PARTIAL":
-      return styles.statusPartial;
-    case "DRAFT":
-    default:
-      return styles.statusDraft;
-  }
+const formatAmount = (n?: number) => {
+  if (!n && n !== 0) return "₹0.00";
+  return `₹${n!.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 const Invoices: React.FC = () => {
   const navigate = useNavigate();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // NOTE: navigate to the admin nested route (absolute path)
-  const handleCreateInvoice = () => {
-    navigate("/admin/invoices/create");
+  const fetchInvoices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const resp = await api.get("/api/invoices/getallinvoice");
+      setInvoices(resp.data || []);
+    } catch (err: any) {
+      console.error("Failed to fetch invoices", err);
+      setError(err?.response?.data?.error || err?.message || "Failed to load invoices");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleView = (id: string) => {
-    navigate(`/admin/invoices/${id}`);
-  };
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Invoices</h1>
-          <p className={styles.subtitle}>
-            View, manage and generate all your invoices here.
-          </p>
+          <p className={styles.subtitle}>View, manage and generate all your invoices here.</p>
         </div>
-
-        <button
-          type="button"
-          className={styles.createBtn}
-          onClick={handleCreateInvoice}
-        >
-          ➕ Create / Generate Invoice
-        </button>
+        <button className={styles.createBtn} onClick={() => navigate("/admin/invoices/create")}>➕ Create / Generate Invoice</button>
       </div>
 
       <div className={styles.card}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Invoice No</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {dummyInvoices.map((inv, idx) => (
-              <tr key={inv.id}>
-                <td>{idx + 1}</td>
-                <td>{inv.number}</td>
-                <td>{inv.customerName}</td>
-                <td>{formatDate(inv.date)}</td>
-                <td>{formatAmount(inv.amount)}</td>
-                <td>
-                  <span className={`${styles.statusBadge} ${getStatusBadgeClass(inv.status)}`}>
-                    {inv.status}
-                  </span>
-                </td>
-                <td>
-                  <button className={styles.viewBtn} onClick={() => handleView(inv.id)}>
-                    View
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {dummyInvoices.length === 0 && (
+        {loading ? (
+          <div>Loading invoices…</div>
+        ) : error ? (
+          <div className={styles.empty}>Error: {error}</div>
+        ) : invoices.length === 0 ? (
           <div className={styles.empty}>No invoices yet. Click Create to add one.</div>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Invoice No</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.map((inv, idx) => (
+                <tr key={inv._id}>
+                  <td>{idx + 1}</td>
+                  <td>{inv.invoiceNo}</td>
+                  <td>{inv.billedTo?.name || "-"}</td>
+                  <td>{formatDate(inv.dateOfInvoice || inv.createdAt)}</td>
+                  <td>{formatAmount(inv.totals?.grandTotal)}</td>
+                  <td><button className={styles.viewBtn} onClick={() => navigate(`/admin/invoices/${inv._id}`)}>View</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

@@ -1,9 +1,9 @@
 // src/pages/auth/Login.tsx
 import React, { useState } from "react";
 import styles from "../../assets/styles/auth/Login.module.css";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -15,6 +15,7 @@ interface LoginResponseUser {
 }
 
 interface LoginResponse {
+  message?: string;
   token: string;
   user: LoginResponseUser;
 }
@@ -40,32 +41,52 @@ const Login: React.FC = () => {
 
       const res = await axios.post<LoginResponse>(
         `${API_BASE_URL}/api/auth/login`,
-        {
-          email,
-          password,
-        }
+        { email, password },
+        { timeout: 10000 }
       );
 
       const { token, user } = res.data;
 
-      // ✅ Save in localStorage
+      if (!token || !user) {
+        toast.error("Unexpected server response. Please try again.");
+        return;
+      }
+
+      // Save token + user
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      toast.success("Login successful");
+      toast.success(res.data.message || "Login successful");
 
-      // Agar sirf admin ka dashboard hai:
+      // Redirect based on role (you currently redirect admin to /admin)
       if (user.role === "admin") {
         navigate("/admin");
       } else {
-        // future me agar user panel banaoge to yaha redirect change kar lena
+        // update this later if you add a user panel
         navigate("/admin");
       }
-    } catch (error: any) {
-      console.error(error);
-      const message =
-        error?.response?.data?.message || "Login failed. Please try again.";
-      toast.error(message);
+    } catch (err: unknown) {
+      // Better error handling and clearer messages
+      const error = err as AxiosError<any>;
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const serverMsg = error.response?.data?.message;
+
+        if (status === 401) {
+          // invalid credentials (wrong email or password)
+          toast.error(serverMsg || "Invalid credentials — check email or password");
+        } else if (status === 400) {
+          toast.error(serverMsg || "Bad request");
+        } else if (status === 0 || !error.response) {
+          toast.error("Network error — unable to reach server");
+        } else {
+          toast.error(serverMsg || "Login failed. Please try again.");
+        }
+      } else {
+        // Non-Axios error
+        console.error(err);
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -104,6 +125,7 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
+                disabled={loading}
               />
             </div>
 
@@ -117,11 +139,13 @@ const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   className={styles.togglePassword}
-                  onClick={() => setShowPassword((prev) => !prev)}
+                  onClick={() => setShowPassword((p) => !p)}
+                  disabled={loading}
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
@@ -137,7 +161,12 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          {/* future: forgot password, etc. */}
+          <p className={styles.switch}>
+            Don't have an account?{" "}
+            <Link to="/auth/register" className={styles.link}>
+              Create account
+            </Link>
+          </p>
         </div>
       </div>
     </div>

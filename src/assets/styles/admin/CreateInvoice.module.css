@@ -359,7 +359,7 @@ select:focus {
 /* billing / ship layout */
 .billingSection {
     display: grid;
-    grid-template-columns: 1fr 534px;
+    grid-template-columns: 1fr 650px;
     gap: 20px;
     align-items: start;
 }

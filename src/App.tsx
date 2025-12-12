@@ -7,12 +7,14 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Invoices from "./pages/admin/Invoices";
 import CreateInvoice from "./pages/admin/CreateInvoice";
 import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 
 function AppRoutes() {
   return (
     <Routes>
       {/* LOGIN ROUTE */}
       <Route path="/login" element={<Login />} />
+        <Route path="/auth/register" element={<Register />} />
 
       {/* ADMIN ROUTES */}
       <Route
