@@ -37,7 +37,7 @@ const Invoices: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const resp = await api.get("/api/invoice/getallinvoice");
+      const resp = await api.get("/api/invoice/getallinvoice"); // keep as-is if backend expects this
       setInvoices(resp.data || []);
     } catch (err: any) {
       console.error("Failed to fetch invoices", err);
@@ -88,6 +88,7 @@ const Invoices: React.FC = () => {
                   <td>{inv.billedTo?.name || "-"}</td>
                   <td>{formatDate(inv.dateOfInvoice || inv.createdAt)}</td>
                   <td>{formatAmount(inv.totals?.grandTotal)}</td>
+                  {/* Navigate to /admin/invoices/:id (match your Router) */}
                   <td><button className={styles.viewBtn} onClick={() => navigate(`/admin/invoices/${inv._id}`)}>View</button></td>
                 </tr>
               ))}

@@ -2,8 +2,13 @@
   padding: 20px 24px 32px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
+    color: #111827;
 }
 
+.invoiceButton{
+  display: flex;
+  gap: 20px;
+}
 /* Header */
 .header {
   display: flex;

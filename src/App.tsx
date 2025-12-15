@@ -8,6 +8,7 @@ import Invoices from "./pages/admin/Invoices";
 import CreateInvoice from "./pages/admin/CreateInvoice";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import InvoiceView from "./pages/admin/InvoiceView";
 
 function AppRoutes() {
   return (
@@ -33,6 +34,7 @@ function AppRoutes() {
 
         {/* /admin/invoices/create */}
         <Route path="invoices/create" element={<CreateInvoice />} />
+         <Route path="/admin/invoices/:id" element={<InvoiceView/>} />
 
 
         {/* ...add other nested admin routes here */}
