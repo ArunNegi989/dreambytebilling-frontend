@@ -108,7 +108,9 @@ export default function InvoiceView() {
       setInvoice(resp.data);
     } catch (err: any) {
       console.error("Failed to load invoice", err);
-      setError(err?.response?.data?.error || err?.message || "Failed to load invoice");
+      setError(
+        err?.response?.data?.error || err?.message || "Failed to load invoice"
+      );
     } finally {
       setLoading(false);
     }
@@ -122,18 +124,22 @@ export default function InvoiceView() {
   const items: IItem[] = Array.isArray(invoice?.items) ? invoice.items : [];
 
   const subtotal = useMemo(
-    () => items.reduce((s, it) => s + (Number(it.amount || 0)), 0),
+    () => items.reduce((s, it) => s + Number(it.amount || 0), 0),
     [items]
   );
   const igst = invoice?.totals?.igst ?? 0;
   const cgst = invoice?.totals?.cgst ?? +(subtotal * 0.09).toFixed(2);
   const sgst = invoice?.totals?.sgst ?? +(subtotal * 0.09).toFixed(2);
-  const grandTotal = invoice?.totals?.grandTotal ?? +(subtotal + Number(igst) + Number(cgst) + Number(sgst)).toFixed(2);
+  const grandTotal =
+    invoice?.totals?.grandTotal ??
+    +(subtotal + Number(igst) + Number(cgst) + Number(sgst)).toFixed(2);
 
   const downloadPdf = async () => {
     if (!id) return;
     try {
-      const resp = await api.get(`/api/invoice/${id}/pdf`, { responseType: "blob" });
+      const resp = await api.get(`/api/invoice/${id}/pdf`, {
+        responseType: "blob",
+      });
       const blob = new Blob([resp.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -160,99 +166,115 @@ export default function InvoiceView() {
         <div className={styles.invoiceHeaderCard}>
           <div className={styles.headerLeft}>
             <div className={styles.smallLabel}>PAN NO.</div>
-            <input className={styles.headerInput} value={invoice?.header?.panNo ?? invoice?.panNo ?? ""} readOnly />
+            <input
+              className={styles.headerInput}
+              value={invoice?.header?.panNo ?? invoice?.panNo ?? ""}
+              readOnly
+            />
             <div className={styles.smallLabel}>GSTIN</div>
-            <input className={styles.headerInput} value={invoice?.header?.supplierGstin ?? invoice?.supplierGstin ?? invoice?.gstin ?? ""} readOnly />
+            <input
+              className={styles.headerInput}
+              value={
+                invoice?.header?.supplierGstin ??
+                invoice?.supplierGstin ??
+                invoice?.gstin ??
+                ""
+              }
+              readOnly
+            />
             <div className={styles.smallLabel}>CATEGORY</div>
-            <input className={styles.headerInput} value={invoice?.header?.category ?? invoice?.category ?? ""} readOnly />
-              {/* CIN */}
-  <div className={styles.smallLabel}>CIN</div>
-  <input
-    className={styles.headerInput}
-    value={
-      invoice?.header?.office?.cin ??
-      invoice?.office?.cin ??
-      ""
-    }
-    readOnly
-  />
+            <input
+              className={styles.headerInput}
+              value={invoice?.header?.category ?? invoice?.category ?? ""}
+              readOnly
+            />
+            {/* CIN */}
+            <div className={styles.smallLabel}>CIN</div>
+            <input
+              className={styles.headerInput}
+              value={invoice?.header?.office?.cin ?? invoice?.office?.cin ?? ""}
+              readOnly
+            />
 
-  {/* MSME */}
-  <div className={styles.smallLabel}>MSME</div>
-  <input
-    className={styles.headerInput}
-    value={
-      invoice?.header?.office?.msme ??
-      invoice?.office?.msme ??
-      ""
-    }
-    readOnly
-  />
+            {/* MSME */}
+            <div className={styles.smallLabel}>MSME</div>
+            <input
+              className={styles.headerInput}
+              value={
+                invoice?.header?.office?.msme ?? invoice?.office?.msme ?? ""
+              }
+              readOnly
+            />
           </div>
 
           <div className={styles.headerCenter}>
             {invoice?.header?.logoUrl || invoice?.office?.logoUrl ? (
-              <img src={invoice?.header?.logoUrl ?? invoice?.office?.logoUrl} alt="logo" style={{ maxHeight: 72 }} />
+              <img
+                src={invoice?.header?.logoUrl ?? invoice?.office?.logoUrl}
+                alt="logo"
+                style={{ maxHeight: 72 }}
+              />
             ) : (
-              <div className={styles.logoPlaceholder}>Dream Byte solutions<br/>Advertising Pvt. Ltd.</div>
+              <div className={styles.logoPlaceholder}>
+                Dream Byte solutions
+                <br />
+                Advertising Pvt. Ltd.
+              </div>
             )}
           </div>
 
           <div className={styles.headerRight}>
-  {/* Personal Phone */}
-  <div className={styles.smallLabel}>Phone (Personal)</div>
-  <input
-    className={styles.headerInput}
-    value={
-      invoice?.header?.office?.personalPhone ??
-      invoice?.office?.personalPhone ??
-      ""
-    }
-    readOnly
-  />
+            {/* Personal Phone */}
+            <div className={styles.smallLabel}>Phone (Personal)</div>
+            <input
+              className={styles.headerInput}
+              value={
+                invoice?.header?.office?.personalPhone ??
+                invoice?.office?.personalPhone ??
+                ""
+              }
+              readOnly
+            />
 
-  {/* Alternate Phone */}
-  <div className={styles.smallLabel}>Phone (Alternate)</div>
-  <input
-    className={styles.headerInput}
-    value={
-      invoice?.header?.office?.alternatePhone ??
-      invoice?.office?.alternatePhone ??
-      ""
-    }
-    readOnly
-  />
+            {/* Alternate Phone */}
+            <div className={styles.smallLabel}>Phone (Alternate)</div>
+            <input
+              className={styles.headerInput}
+              value={
+                invoice?.header?.office?.alternatePhone ??
+                invoice?.office?.alternatePhone ??
+                ""
+              }
+              readOnly
+            />
 
-  {/* Email */}
-  <div className={styles.smallLabel}>E-mail</div>
-  <input
-    className={styles.headerInput}
-    value={
-      invoice?.header?.office?.officeEmail ??
-      invoice?.office?.officeEmail ??
-      ""
-    }
-    readOnly
-  />
+            {/* Email */}
+            <div className={styles.smallLabel}>E-mail</div>
+            <input
+              className={styles.headerInput}
+              value={
+                invoice?.header?.office?.officeEmail ??
+                invoice?.office?.officeEmail ??
+                ""
+              }
+              readOnly
+            />
 
+            <div style={{ height: 6 }} />
 
-
-  <div style={{ height: 6 }} />
-
-  {/* Office Address */}
-  <textarea
-    className={styles.headerAddress}
-    value={
-      invoice?.header?.office?.officeAddress ??
-      invoice?.office?.officeAddress ??
-      invoice?.footerAddress ??
-      ""
-    }
-    rows={3}
-    readOnly
-  />
-</div>
-
+            {/* Office Address */}
+            <textarea
+              className={styles.headerAddress}
+              value={
+                invoice?.header?.office?.officeAddress ??
+                invoice?.office?.officeAddress ??
+                invoice?.footerAddress ??
+                ""
+              }
+              rows={3}
+              readOnly
+            />
+          </div>
         </div>
 
         <header className={styles.header}>
@@ -262,14 +284,27 @@ export default function InvoiceView() {
           </div>
 
           <div className={styles.headerActions}>
-            <button type="button" className={styles.ghost} onClick={() => navigate(-1)}>Back</button>
-            <button type="button" className={styles.primary} onClick={downloadPdf} disabled={saving}>Download PDF</button>
+            <button
+              type="button"
+              className={styles.ghost}
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              className={styles.primary}
+              onClick={downloadPdf}
+              disabled={saving}
+            >
+              Download PDF
+            </button>
           </div>
         </header>
 
-        <form  className={styles.form}>
+        <form className={styles.form}>
           {/* IRN / ACK */}
-           <section className={styles.card}>
+          <section className={styles.card}>
             <div className={styles.metaRow}>
               <label>
                 <div className={styles.label}>IRN</div>
@@ -281,7 +316,11 @@ export default function InvoiceView() {
               </label>
               <label>
                 <div className={styles.label}>Ack Date</div>
-                <input type="date" value={invoice.ackDate?.slice(0,10) ?? ""} readOnly />
+                <input
+                  type="date"
+                  value={invoice.ackDate?.slice(0, 10) ?? ""}
+                  readOnly
+                />
               </label>
             </div>
           </section>
@@ -306,7 +345,11 @@ export default function InvoiceView() {
               </label>
               <label>
                 <div className={styles.label}>Date of Invoice</div>
-                <input type="date" value={invoice.dateOfInvoice?.slice(0,10) ?? ""} readOnly />
+                <input
+                  type="date"
+                  value={invoice.dateOfInvoice?.slice(0, 10) ?? ""}
+                  readOnly
+                />
               </label>
             </div>
           </section>
@@ -321,16 +364,31 @@ export default function InvoiceView() {
                 </div>
 
                 <label className={styles.formField}>
-                  <input className={styles.textInput} value={invoice.billedTo?.name ?? ""} readOnly />
+                  <input
+                    className={styles.textInput}
+                    value={invoice.billedTo?.name ?? ""}
+                    readOnly
+                  />
                 </label>
 
-                <label className={`${styles.formField} ${styles.textareaField}`}>
-                  <textarea className={styles.textarea} rows={3} value={invoice.billedTo?.address ?? ""} readOnly />
+                <label
+                  className={`${styles.formField} ${styles.textareaField}`}
+                >
+                  <textarea
+                    className={styles.textarea}
+                    rows={3}
+                    value={invoice.billedTo?.address ?? ""}
+                    readOnly
+                  />
                 </label>
 
                 <label className={styles.formField}>
                   <div className={styles.label}>Party PAN</div>
-                  <input className={styles.textInput} value={invoice.partyPan ?? ""} readOnly />
+                  <input
+                    className={styles.textInput}
+                    value={invoice.partyPan ?? ""}
+                    readOnly
+                  />
                 </label>
               </div>
 
@@ -340,21 +398,40 @@ export default function InvoiceView() {
                 </div>
 
                 <label className={styles.formField}>
-                  <input className={styles.textInput} value={invoice.shipTo?.name ?? ""} readOnly />
+                  <input
+                    className={styles.textInput}
+                    value={invoice.shipTo?.name ?? ""}
+                    readOnly
+                  />
                 </label>
 
-                <label className={`${styles.formField} ${styles.textareaField}`}>
-                  <textarea className={styles.textarea} rows={3} value={invoice.shipTo?.address ?? ""} readOnly />
+                <label
+                  className={`${styles.formField} ${styles.textareaField}`}
+                >
+                  <textarea
+                    className={styles.textarea}
+                    rows={3}
+                    value={invoice.shipTo?.address ?? ""}
+                    readOnly
+                  />
                 </label>
 
                 <div className={styles.rowGrid}>
                   <label style={{ flex: 1 }}>
                     <div className={styles.label}>Receiver's GSTIN</div>
-                    <input className={styles.textInput} value={invoice.receiverGstin ?? ""} readOnly />
+                    <input
+                      className={styles.textInput}
+                      value={invoice.receiverGstin ?? ""}
+                      readOnly
+                    />
                   </label>
                   <label style={{ width: 200 }}>
                     <div className={styles.label}>Place of Supply</div>
-                    <input className={styles.textInput} value={invoice.placeOfSupply ?? ""} readOnly />
+                    <input
+                      className={styles.textInput}
+                      value={invoice.placeOfSupply ?? ""}
+                      readOnly
+                    />
                   </label>
                 </div>
               </div>
@@ -363,8 +440,12 @@ export default function InvoiceView() {
 
           {/* Items table */}
           <section className={styles.card}>
-            <div className={styles.itemTableheading} style={{ fontWeight: 700, marginBottom: 8 }}>
-              Towards charges for sale of advertising space in outdoor media as per following details:
+            <div
+              className={styles.itemTableheading}
+              style={{ fontWeight: 700, marginBottom: 8 }}
+            >
+              Towards charges for sale of advertising space in outdoor media as
+              per following details:
             </div>
 
             <div className={styles.itemsTable}>
@@ -385,36 +466,103 @@ export default function InvoiceView() {
                 items.map((it, idx) => (
                   <div key={it.id} className={styles.itemRow}>
                     <div className={styles.itemIndex}>{idx + 1}</div>
-                    <input className={styles.itemSmall} value={it.location ?? ""} readOnly />
-                    <input className={styles.itemSmall} value={it.sacHsn ?? ""} readOnly />
-                    <input type="number" min={1} className={styles.itemQty} value={it.qty ?? 0} readOnly />
-                    <input className={styles.itemDesc} value={it.specification ?? ""} readOnly />
-                    <input type="number" min={0} step="0.01" className={styles.itemRate} value={it.rate ?? 0} readOnly />
-                    <div className={styles.itemAmount}>{formatCurrency(Number(it.amount ?? 0))}</div>
+                    <input
+                      className={styles.itemSmall}
+                      value={it.location ?? ""}
+                      readOnly
+                    />
+                    <input
+                      className={styles.itemSmall}
+                      value={it.sacHsn ?? ""}
+                      readOnly
+                    />
+                    <input
+                      type="number"
+                      min={1}
+                      className={styles.itemQty}
+                      value={it.qty ?? 0}
+                      readOnly
+                    />
+                    <input
+                      className={styles.itemDesc}
+                      value={it.specification ?? ""}
+                      readOnly
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      className={styles.itemRate}
+                      value={it.rate ?? 0}
+                      readOnly
+                    />
+                    <div className={styles.itemAmount}>
+                      {formatCurrency(Number(it.amount ?? 0))}
+                    </div>
                     <div className={styles.itemActionsCell}></div>
                   </div>
                 ))
               )}
-
             </div>
           </section>
 
           {/* Totals */}
           <section className={styles.card}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700 }}>DISPLAY CHARGES</div>
                 <div style={{ marginTop: 10, color: "#555" }}>
-                  Rupees in words: <strong>{numberToWords(Math.floor(grandTotal))} Only</strong>
+                  Rupees in words:{" "}
+                  <strong>{numberToWords(Math.floor(grandTotal))} Only</strong>
                 </div>
               </div>
 
               <div style={{ minWidth: 260, textAlign: "right", color: "#000" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}><div>Total Taxable Value:</div><div>{formatCurrency(subtotal)}</div></div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}><div>IGST:</div><div>{formatCurrency(Number(igst || 0))}</div></div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}><div>CGST:</div><div>{formatCurrency(Number(cgst || 0))}</div></div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}><div>SGST:</div><div>{formatCurrency(Number(sgst || 0))}</div></div>
-                <div style={{ borderTop: "1px solid #050505ff", marginTop: 8, paddingTop: 8, fontWeight: 700 }}><div style={{ display: "flex", justifyContent: "space-between" }}><div>Grand Total</div><div>{formatCurrency(grandTotal)}</div></div></div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div>Total Taxable Value:</div>
+                  <div>{formatCurrency(subtotal)}</div>
+                </div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div>IGST:</div>
+                  <div>{formatCurrency(Number(igst || 0))}</div>
+                </div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div>CGST:</div>
+                  <div>{formatCurrency(Number(cgst || 0))}</div>
+                </div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div>SGST:</div>
+                  <div>{formatCurrency(Number(sgst || 0))}</div>
+                </div>
+                <div
+                  style={{
+                    borderTop: "1px solid #050505ff",
+                    marginTop: 8,
+                    paddingTop: 8,
+                    fontWeight: 700,
+                  }}
+                >
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <div>Grand Total</div>
+                    <div>{formatCurrency(grandTotal)}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -423,7 +571,11 @@ export default function InvoiceView() {
           <section className={styles.card}>
             <div className={styles.row}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, marginBottom: 12, color: "#000" }}>Our Bank Details</div>
+                <div
+                  style={{ fontWeight: 700, marginBottom: 12, color: "#000" }}
+                >
+                  Our Bank Details
+                </div>
                 <div className={styles.bankGrid}>
                   <div>
                     <div className={styles.label}>Bank Name</div>
@@ -449,9 +601,6 @@ export default function InvoiceView() {
               </div>
             </div>
           </section>
-
-
-          
         </form>
       </div>
 
@@ -459,21 +608,52 @@ export default function InvoiceView() {
       <aside className={styles.right}>
         <div className={styles.summaryCard}>
           <h3>Summary</h3>
-          <div className={styles.summaryRow}><div>Subtotal</div><div>{formatCurrency(subtotal)}</div></div>
-          <div className={styles.summaryRow}><div>IGST</div><div>{formatCurrency(Number(igst || 0))}</div></div>
-          <div className={styles.summaryRow}><div>CGST</div><div>{formatCurrency(Number(cgst || 0))}</div></div>
-          <div className={styles.summaryRow}><div>SGST</div><div>{formatCurrency(Number(sgst || 0))}</div></div>
+          <div className={styles.summaryRow}>
+            <div>Subtotal</div>
+            <div>{formatCurrency(subtotal)}</div>
+          </div>
+          <div className={styles.summaryRow}>
+            <div>IGST</div>
+            <div>{formatCurrency(Number(igst || 0))}</div>
+          </div>
+          <div className={styles.summaryRow}>
+            <div>CGST</div>
+            <div>{formatCurrency(Number(cgst || 0))}</div>
+          </div>
+          <div className={styles.summaryRow}>
+            <div>SGST</div>
+            <div>{formatCurrency(Number(sgst || 0))}</div>
+          </div>
 
-          <div className={styles.summaryTotal}><div>Grand Total</div><div className={styles.big}>{formatCurrency(grandTotal)}</div></div>
+          <div className={styles.summaryTotal}>
+            <div>Grand Total</div>
+            <div className={styles.big}>{formatCurrency(grandTotal)}</div>
+          </div>
 
           <div className={styles.summaryActions}>
-            <button type="button" className={styles.primaryFull} onClick={downloadPdf}>Download PDF</button>
-            <button type="button" className={styles.ghostFull} onClick={() => window.print()}>Print Preview</button>
+            <button
+              type="button"
+              className={styles.primaryFull}
+              onClick={downloadPdf}
+            >
+              Download PDF
+            </button>
+            <button
+              type="button"
+              className={styles.ghostFull}
+              onClick={() => window.print()}
+            >
+              Print Preview
+            </button>
           </div>
 
           <div style={{ marginTop: 8, color: "#444" }}>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>Amount (in words)</div>
-            <div style={{ marginTop: 6 }}>{numberToWords(Math.floor(grandTotal))} Rupees Only</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>
+              Amount (in words)
+            </div>
+            <div style={{ marginTop: 6 }}>
+              {numberToWords(Math.floor(grandTotal))} Rupees Only
+            </div>
           </div>
         </div>
       </aside>

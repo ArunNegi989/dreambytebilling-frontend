@@ -168,9 +168,6 @@ const CreateInvoice: React.FC = () => {
     new Date().toISOString().slice(0, 10)
   );
   const [placeOfSupply, setPlaceOfSupply] = useState<string>("Uttarakhand");
- 
- 
-  
 
   const [billedToName, setBilledToName] = useState(
     "DREAMBYTE SOLUTIONS (OPC) PRIVATE LIMITED"
@@ -179,7 +176,6 @@ const CreateInvoice: React.FC = () => {
     "Shashtradhara Road, Siddharth College, Danda, Khudanewala, Dehradun, Uttarakhand, 248008"
   );
 
- 
   const [partyPan, setPartyPan] = useState("");
   const [shipToName, setShipToName] = useState("");
   const [shipToAddress, setShipToAddress] = useState("");
@@ -317,16 +313,16 @@ const CreateInvoice: React.FC = () => {
       invoiceNo,
       dateOfInvoice,
       placeOfSupply,
-     
+
       billedTo: { name: billedToName, address: billedToAddress },
       shipTo: { name: shipToName, address: shipToAddress },
-     
+
       partyPan,
       receiverGstin,
       items: preparedItems,
       totals: { subtotal, igst, cgst, sgst, grandTotal },
       amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
-      bank: { bankName, accountNo, ifsc, branch, pincode,   },
+      bank: { bankName, accountNo, ifsc, branch, pincode },
       footerAddress: officeAddress,
       meta: { createdFrom: "frontend" },
       taxRate: 18,
@@ -382,7 +378,7 @@ const CreateInvoice: React.FC = () => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             />
-              <div className={styles.smallLabel}>CIN</div>
+            <div className={styles.smallLabel}>CIN</div>
             <input
               className={styles.headerInput}
               value={cin}
@@ -398,14 +394,11 @@ const CreateInvoice: React.FC = () => {
           </div>
 
           <div className={styles.headerCenter}>
-            
-          
-              <div className={styles.logoPlaceholder}>
-                Dream Byte solutions
-                <br />
-                Advertising Pvt. Ltd.
-              </div>
-          
+            <div className={styles.logoPlaceholder}>
+              Dream Byte solutions
+              <br />
+              Advertising Pvt. Ltd.
+            </div>
           </div>
 
           <div className={styles.headerRight}>
@@ -434,8 +427,6 @@ const CreateInvoice: React.FC = () => {
               value={officeEmail}
               onChange={(e) => setOfficeEmail(e.target.value)}
             />
-
-          
 
             <div style={{ height: 6 }} />
             <textarea
@@ -518,7 +509,6 @@ const CreateInvoice: React.FC = () => {
                   onChange={(e) => setInvoiceNo(e.target.value)}
                 />
               </label>
-              
             </div>
 
             <div className={styles.metaRow}>
@@ -545,8 +535,6 @@ const CreateInvoice: React.FC = () => {
                   onChange={(e) => setDateOfInvoice(e.target.value)}
                 />
               </label>
-
-             
             </div>
           </section>
 
@@ -579,7 +567,7 @@ const CreateInvoice: React.FC = () => {
                     placeholder="Billed to address"
                   />
                 </label>
-<label className={styles.formField}>
+                <label className={styles.formField}>
                   <div className={styles.label}>Party PAN</div>
                   <input
                     className={styles.textInput}
@@ -588,7 +576,6 @@ const CreateInvoice: React.FC = () => {
                     placeholder="Party PAN"
                   />
                 </label>
-               
               </div>
 
               <div className={styles.columnRight}>
@@ -632,10 +619,8 @@ const CreateInvoice: React.FC = () => {
                   />
                 </label>
 
-                
-
                 <div className={styles.rowGrid} style={{ marginTop: 6 }}>
-                   <label style={{flex: 1  }}>
+                  <label style={{ flex: 1 }}>
                     <div className={styles.label}>Receiver's GSTIN</div>
                     <input
                       className={styles.textInput}
@@ -644,7 +629,7 @@ const CreateInvoice: React.FC = () => {
                       placeholder="Receiver GSTIN"
                     />
                   </label>
-                  <label style={{  width: 200 }}>
+                  <label style={{ width: 200 }}>
                     <div className={styles.label}>Place of Supply</div>
                     <select
                       value={placeOfSupply}
@@ -661,8 +646,6 @@ const CreateInvoice: React.FC = () => {
                       ))}
                     </select>
                   </label>
-
-                 
                 </div>
               </div>
             </div>
@@ -880,7 +863,7 @@ const CreateInvoice: React.FC = () => {
                       placeholder="Enter Branch Name"
                     />
                   </label>
-                  
+
                   <label>
                     <div className={styles.label}>Pincode</div>
                     <input
