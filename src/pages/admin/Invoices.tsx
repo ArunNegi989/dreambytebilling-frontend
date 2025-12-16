@@ -1,6 +1,6 @@
-// src/pages/admin/Invoices.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import styles from "../../assets/styles/admin/Invoices.module.css";
 import api from "../../api/axios";
 
@@ -24,7 +24,10 @@ const formatDate = (d?: string) => {
 
 const formatAmount = (n?: number) => {
   if (!n && n !== 0) return "₹0.00";
-  return `₹${n!.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `₹${n.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 };
 
 const Invoices: React.FC = () => {
@@ -32,18 +35,48 @@ const Invoices: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  /* ---------------- FETCH INVOICES ---------------- */
   const fetchInvoices = async () => {
     try {
       setLoading(true);
       setError(null);
-      const resp = await api.get("/api/invoice/getallinvoice"); // keep as-is if backend expects this
+      const resp = await api.get("/api/invoice/getallinvoice");
       setInvoices(resp.data || []);
     } catch (err: any) {
       console.error("Failed to fetch invoices", err);
-      setError(err?.response?.data?.error || err?.message || "Failed to load invoices");
+      const msg =
+        err?.response?.data?.error ||
+        err?.message ||
+        "Failed to load invoices";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /* ---------------- DIRECT DELETE ---------------- */
+  const handleDelete = async (id: string) => {
+    try {
+      setDeletingId(id);
+
+      await api.delete(`/api/invoice/${id}`);
+
+      // remove from UI instantly
+      setInvoices((prev) => prev.filter((inv) => inv._id !== id));
+
+      toast.success("Invoice deleted successfully");
+    } catch (err: any) {
+      console.error("Delete failed", err);
+      toast.error(
+        err?.response?.data?.error ||
+          err?.message ||
+          "Failed to delete invoice"
+      );
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -56,9 +89,16 @@ const Invoices: React.FC = () => {
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Invoices</h1>
-          <p className={styles.subtitle}>View, manage and generate all your invoices here.</p>
+          <p className={styles.subtitle}>
+            View, manage and generate all your invoices here.
+          </p>
         </div>
-        <button className={styles.createBtn} onClick={() => navigate("/admin/invoices/create")}>➕ Create / Generate Invoice</button>
+        <button
+          className={styles.createBtn}
+          onClick={() => navigate("/admin/invoices/create")}
+        >
+          ➕ Create / Generate Invoice
+        </button>
       </div>
 
       <div className={styles.card}>
@@ -67,7 +107,9 @@ const Invoices: React.FC = () => {
         ) : error ? (
           <div className={styles.empty}>Error: {error}</div>
         ) : invoices.length === 0 ? (
-          <div className={styles.empty}>No invoices yet. Click Create to add one.</div>
+          <div className={styles.empty}>
+            No invoices yet. Click Create to add one.
+          </div>
         ) : (
           <table className={styles.table}>
             <thead>
@@ -77,7 +119,7 @@ const Invoices: React.FC = () => {
                 <th>Customer</th>
                 <th>Date</th>
                 <th>Amount</th>
-                <th></th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -88,8 +130,24 @@ const Invoices: React.FC = () => {
                   <td>{inv.billedTo?.name || "-"}</td>
                   <td>{formatDate(inv.dateOfInvoice || inv.createdAt)}</td>
                   <td>{formatAmount(inv.totals?.grandTotal)}</td>
-                  {/* Navigate to /admin/invoices/:id (match your Router) */}
-                  <td><button className={styles.viewBtn} onClick={() => navigate(`/admin/invoices/${inv._id}`)}>View</button></td>
+                  <td className={styles.actions}>
+                    <button
+                      className={styles.viewBtn}
+                      onClick={() =>
+                        navigate(`/admin/invoices/${inv._id}`)
+                      }
+                    >
+                      View
+                    </button>
+
+                    <button
+                      className={styles.deleteBtn}
+                      disabled={deletingId === inv._id}
+                      onClick={() => handleDelete(inv._id)}
+                    >
+                      {deletingId === inv._id ? "Deleting..." : "Delete"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

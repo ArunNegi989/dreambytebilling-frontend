@@ -184,7 +184,6 @@ const CreateInvoice: React.FC = () => {
   const [shipToName, setShipToName] = useState("");
   const [shipToAddress, setShipToAddress] = useState("");
   const [sameAsBilling, setSameAsBilling] = useState(false);
-  const [sector, setSector] = useState("");
   const [pincode, setPincode] = useState("");
   const [receiverGstin, setReceiverGstin] = useState("");
 
@@ -327,7 +326,7 @@ const CreateInvoice: React.FC = () => {
       items: preparedItems,
       totals: { subtotal, igst, cgst, sgst, grandTotal },
       amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
-      bank: { bankName, accountNo, ifsc, branch,  sector, pincode,   },
+      bank: { bankName, accountNo, ifsc, branch, pincode,   },
       footerAddress: officeAddress,
       meta: { createdFrom: "frontend" },
       taxRate: 18,
@@ -881,14 +880,7 @@ const CreateInvoice: React.FC = () => {
                       placeholder="Enter Branch Name"
                     />
                   </label>
-                  <label>
-                    <div className={styles.label}>Sector</div>
-                    <input
-                      value={sector}
-                      onChange={(e) => setSector(e.target.value)}
-                      placeholder="Enter Sector"
-                    />
-                  </label>
+                  
                   <label>
                     <div className={styles.label}>Pincode</div>
                     <input

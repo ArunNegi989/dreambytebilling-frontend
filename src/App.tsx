@@ -1,6 +1,9 @@
 // src/App.tsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -12,37 +15,40 @@ import InvoiceView from "./pages/admin/InvoiceView";
 
 function AppRoutes() {
   return (
-    <Routes>
-      {/* LOGIN ROUTE */}
-      <Route path="/login" element={<Login />} />
+    <>
+      {/* ROUTES */}
+      <Routes>
+        {/* LOGIN ROUTE */}
+        <Route path="/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
 
-      {/* ADMIN ROUTES */}
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        {/* /admin */}
-        <Route index element={<AdminDashboard />} />
+        {/* ADMIN ROUTES */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="invoices" element={<Invoices />} />
+          <Route path="invoices/create" element={<CreateInvoice />} />
+          <Route path="invoices/:id" element={<InvoiceView />} />
+        </Route>
 
-        {/* /admin/invoices */}
-        <Route path="invoices" element={<Invoices />} />
+        {/* fallback */}
+        <Route path="*" element={<Login />} />
+      </Routes>
 
-        {/* /admin/invoices/create */}
-        <Route path="invoices/create" element={<CreateInvoice />} />
-         <Route path="/admin/invoices/:id" element={<InvoiceView/>} />
-
-
-        {/* ...add other nested admin routes here */}
-      </Route>
-
-      {/* fallback / 404 can go here */}
-      <Route path="*" element={<Login />} />
-    </Routes>
+      {/* TOAST CONTAINER (GLOBAL) */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        pauseOnHover
+        closeOnClick
+      />
+    </>
   );
 }
 

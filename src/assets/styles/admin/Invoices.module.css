@@ -184,6 +184,28 @@
   font-size: 13px;
   color: #6b7280;
 }
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.deleteBtn {
+  padding: 6px 12px;
+  background: #e63946;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background: #c62828;
+}
 
 /* Responsive */
 @media (max-width: 768px) {

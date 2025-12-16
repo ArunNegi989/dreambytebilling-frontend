@@ -442,10 +442,6 @@ export default function InvoiceView() {
                     <input value={invoice?.bank?.branch ?? ""} readOnly />
                   </div>
                   <div>
-                    <div className={styles.label}>Sector</div>
-                    <input value={invoice?.bank?.sector ?? ""} readOnly />
-                  </div>
-                  <div>
                     <div className={styles.label}>Pincode</div>
                     <input value={invoice?.bank?.pincode ?? ""} readOnly />
                   </div>
