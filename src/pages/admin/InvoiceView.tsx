@@ -1,5 +1,5 @@
 // src/pages/admin/InvoiceView.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 // use CreateInvoice styles so layout matches the form exactly
@@ -303,12 +303,9 @@ export default function InvoiceView() {
         </header>
 
         <form className={styles.form}>
-          
-
           {/* Invoice meta */}
           <section className={styles.card}>
             <div className={styles.metaRow}>
-              
               <label>
                 <div className={styles.label}>Invoice No</div>
                 <input value={invoice.invoiceNo ?? ""} readOnly />
@@ -359,15 +356,13 @@ export default function InvoiceView() {
                   />
                 </label>
                 <label style={{ flex: 1 }}>
-                    <div className={styles.label}>Receiver's GSTIN</div>
-                    <input
-                      className={styles.textInput}
-                      value={invoice.receiverGstin ?? ""}
-                      readOnly
-                    />
-                  </label>
-
-                
+                  <div className={styles.label}>Receiver's GSTIN</div>
+                  <input
+                    className={styles.textInput}
+                    value={invoice.receiverGstin ?? ""}
+                    readOnly
+                  />
+                </label>
               </div>
 
               <div className={styles.columnRight}>
@@ -393,8 +388,6 @@ export default function InvoiceView() {
                     readOnly
                   />
                 </label>
-
-                
               </div>
             </div>
           </section>

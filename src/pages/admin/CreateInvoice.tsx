@@ -156,9 +156,7 @@ const CreateInvoice: React.FC = () => {
     "67/1, Arya Nagar, Block-II, Rajpur Road, Dehradun, Uttarakhand - 248001"
   );
 
- 
   const [gstin, setGstin] = useState(supplierGstin);
-  const [invoiceNo, setInvoiceNo] = useState("");
   const [dateOfInvoice, setDateOfInvoice] = useState<string>(() =>
     new Date().toISOString().slice(0, 10)
   );
@@ -176,7 +174,7 @@ const CreateInvoice: React.FC = () => {
   const [sameAsBilling, setSameAsBilling] = useState(false);
   const [pincode, setPincode] = useState("");
   const [receiverGstin, setReceiverGstin] = useState("");
-
+  const [invoiceNo, setInvoiceNo] = useState("");
   const [items, setItems] = useState<IItem[]>([newItem("itm-1")]);
   const [bankName, setBankName] = useState("ICICI Ltd");
   const [accountNo, setAccountNo] = useState("025051000008");
@@ -192,6 +190,18 @@ const CreateInvoice: React.FC = () => {
       setShipToAddress(billedToAddress || "");
     }
   }, [sameAsBilling, billedToName, billedToAddress]);
+  useEffect(() => {
+    const fetchInvoiceNo = async () => {
+      try {
+        const res = await api.get("/api/invoice/next-invoice-number");
+        setInvoiceNo(res.data.invoiceNo);
+      } catch (err) {
+        console.error("Failed to fetch invoice number");
+      }
+    };
+
+    fetchInvoiceNo();
+  }, []);
 
   const updateItem = (id: string, patch: Partial<IItem>) => {
     setItems((prev) =>
@@ -226,7 +236,6 @@ const CreateInvoice: React.FC = () => {
   const grandTotal = +(subtotal + igst + cgst + sgst).toFixed(2);
 
   const validateQuick = (): string | null => {
-    if (!invoiceNo.trim()) return "Invoice No required";
     if (!dateOfInvoice) return "Invoice date required";
     if (!billedToName.trim()) return "Billed to name required";
     if (!items.length) return "Add at least one line item";
@@ -240,7 +249,7 @@ const CreateInvoice: React.FC = () => {
   };
   const quickError = useMemo(
     () => validateQuick(),
-    [invoiceNo, dateOfInvoice, billedToName, items]
+    [dateOfInvoice, billedToName, items]
   );
 
   /** Download generated PDF */
@@ -269,13 +278,17 @@ const CreateInvoice: React.FC = () => {
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setTopError(null);
+
     const v = validateQuick();
     if (v) {
       setTopError(v);
       return;
     }
 
-    // prepare items to ensure numeric values and amount
+    // 🔥 AUTO DATE ON BUTTON CLICK
+    const todayDate = new Date().toISOString().slice(0, 10);
+
+    // prepare items
     const preparedItems = items.map((it) => ({
       id: it.id,
       location: it.location || "",
@@ -287,49 +300,53 @@ const CreateInvoice: React.FC = () => {
     }));
 
     const payload = {
-  header: {
-    panNo,
-    supplierGstin,
-    category,
-    office: {
-      officeEmail,
-      personalPhone,
-      alternatePhone,
-      cin,
-      msme,
-      officeAddress,
-    },
-  },
-  gstin,
-  invoiceNo,
-  dateOfInvoice,
-  placeOfSupply,
+      header: {
+        panNo,
+        supplierGstin,
+        category,
+        office: {
+          officeEmail,
+          personalPhone,
+          alternatePhone,
+          cin,
+          msme,
+          officeAddress,
+        },
+      },
 
-  billedTo: { name: billedToName, address: billedToAddress },
-  shipTo: { name: shipToName, address: shipToAddress },
-  receiverGstin,
+      invoiceNo,
+      gstin,
 
-  items: preparedItems,
-  totals: { subtotal, igst, cgst, sgst, grandTotal },
-  amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
+      // ✅ always today when button clicked
+      dateOfInvoice: dateOfInvoice || new Date().toISOString().slice(0, 10),
 
-  bank: { bankName, accountNo, ifsc, branch, pincode },
+      placeOfSupply,
 
+      billedTo: { name: billedToName, address: billedToAddress },
+      shipTo: { name: shipToName, address: shipToAddress },
+      receiverGstin,
 
-};
+      items: preparedItems,
+      totals: { subtotal, igst, cgst, sgst, grandTotal },
+      amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
 
+      bank: { bankName, accountNo, ifsc, branch, pincode },
+    };
 
     try {
       setSaving(true);
       const resp = await api.post("/api/invoice/createinvoice", payload);
+
       const savedInvoice = resp.data;
       const invoiceId = savedInvoice?._id || savedInvoice?.id;
+
       if (invoiceId) {
         await downloadPdf(
           invoiceId,
           `invoice-${savedInvoice.invoiceNo || invoiceId}.pdf`
         );
       }
+
       navigate("/admin/invoices");
     } catch (err: any) {
       console.error(err);
@@ -343,8 +360,6 @@ const CreateInvoice: React.FC = () => {
       setSaving(false);
     }
   };
-
- 
 
   return (
     <div className={styles.page}>
@@ -464,22 +479,17 @@ const CreateInvoice: React.FC = () => {
           <section className={styles.card}>
             <div className={styles.metaRow}>
               <label>
-                <div className={styles.label}>GSTIN</div>
-                <input
-                  value={gstin}
-                  onChange={(e) => setGstin(e.target.value)}
-                />
-              </label>
-              <label>
                 <div className={styles.label}>Invoice No</div>
                 <input
                   value={invoiceNo}
-                  onChange={(e) => setInvoiceNo(e.target.value)}
+                  readOnly
+                  className={styles.textInput}
                 />
               </label>
-            </div>
-
-            <div className={styles.metaRow}>
+              <label>
+                <div className={styles.label}>Date of Invoice</div>
+                <input type="date" value={dateOfInvoice} readOnly />
+              </label>
               <label>
                 <div className={styles.label}>Place of Supply</div>
                 <select
@@ -494,14 +504,6 @@ const CreateInvoice: React.FC = () => {
                     </option>
                   ))}
                 </select>
-              </label>
-              <label>
-                <div className={styles.label}>Date of Invoice</div>
-                <input
-                  type="date"
-                  value={dateOfInvoice}
-                  onChange={(e) => setDateOfInvoice(e.target.value)}
-                />
               </label>
             </div>
           </section>
@@ -536,14 +538,14 @@ const CreateInvoice: React.FC = () => {
                   />
                 </label>
                 <label style={{ flex: 1 }}>
-                    <div className={styles.label}>Receiver's GSTIN</div>
-                    <input
-                      className={styles.textInput}
-                      value={receiverGstin}
-                      onChange={(e) => setReceiverGstin(e.target.value)}
-                      placeholder="Receiver GSTIN"
-                    />
-                  </label>
+                  <div className={styles.label}>Receiver's GSTIN</div>
+                  <input
+                    className={styles.textInput}
+                    value={receiverGstin}
+                    onChange={(e) => setReceiverGstin(e.target.value)}
+                    placeholder="Receiver GSTIN"
+                  />
+                </label>
               </div>
 
               <div className={styles.columnRight}>
@@ -586,8 +588,6 @@ const CreateInvoice: React.FC = () => {
                     disabled={sameAsBilling}
                   />
                 </label>
-
-                
               </div>
             </div>
           </section>
@@ -813,13 +813,11 @@ const CreateInvoice: React.FC = () => {
                       placeholder="Enter Pincode"
                     />
                   </label>
-                  
                 </div>
               </div>
             </div>
           </section>
           {/* Signature Section */}
-
 
           {topError && <div className={styles.formError}>{topError}</div>}
         </form>
