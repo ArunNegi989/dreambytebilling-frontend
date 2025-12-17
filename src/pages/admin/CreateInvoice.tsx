@@ -156,12 +156,7 @@ const CreateInvoice: React.FC = () => {
     "67/1, Arya Nagar, Block-II, Rajpur Road, Dehradun, Uttarakhand - 248001"
   );
 
-  const [irn, setIrn] = useState("");
-  const [ackNo, setAckNo] = useState("");
-  const [ackDate, setAckDate] = useState<string>(() =>
-    new Date().toISOString().slice(0, 10)
-  );
-
+ 
   const [gstin, setGstin] = useState(supplierGstin);
   const [invoiceNo, setInvoiceNo] = useState("");
   const [dateOfInvoice, setDateOfInvoice] = useState<string>(() =>
@@ -176,7 +171,6 @@ const CreateInvoice: React.FC = () => {
     "Shashtradhara Road, Siddharth College, Danda, Khudanewala, Dehradun, Uttarakhand, 248008"
   );
 
-  const [partyPan, setPartyPan] = useState("");
   const [shipToName, setShipToName] = useState("");
   const [shipToAddress, setShipToAddress] = useState("");
   const [sameAsBilling, setSameAsBilling] = useState(false);
@@ -293,40 +287,37 @@ const CreateInvoice: React.FC = () => {
     }));
 
     const payload = {
-      header: {
-        panNo,
-        supplierGstin,
-        category,
-        office: {
-          officeEmail,
-          personalPhone,
-          alternatePhone,
-          cin,
-          msme,
-          officeAddress,
-        },
-      },
-      irn,
-      ackNo,
-      ackDate,
-      gstin,
-      invoiceNo,
-      dateOfInvoice,
-      placeOfSupply,
+  header: {
+    panNo,
+    supplierGstin,
+    category,
+    office: {
+      officeEmail,
+      personalPhone,
+      alternatePhone,
+      cin,
+      msme,
+      officeAddress,
+    },
+  },
+  gstin,
+  invoiceNo,
+  dateOfInvoice,
+  placeOfSupply,
 
-      billedTo: { name: billedToName, address: billedToAddress },
-      shipTo: { name: shipToName, address: shipToAddress },
+  billedTo: { name: billedToName, address: billedToAddress },
+  shipTo: { name: shipToName, address: shipToAddress },
+  receiverGstin,
 
-      partyPan,
-      receiverGstin,
-      items: preparedItems,
-      totals: { subtotal, igst, cgst, sgst, grandTotal },
-      amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
-      bank: { bankName, accountNo, ifsc, branch, pincode },
-      footerAddress: officeAddress,
-      meta: { createdFrom: "frontend" },
-      taxRate: 18,
-    };
+  items: preparedItems,
+  totals: { subtotal, igst, cgst, sgst, grandTotal },
+  amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
+
+  bank: { bankName, accountNo, ifsc, branch, pincode },
+
+
+};
+
 
     try {
       setSaving(true);
@@ -352,6 +343,8 @@ const CreateInvoice: React.FC = () => {
       setSaving(false);
     }
   };
+
+ 
 
   return (
     <div className={styles.page}>
@@ -467,31 +460,6 @@ const CreateInvoice: React.FC = () => {
         </header>
 
         <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
-          {/* IRN / ACK */}
-          <section className={styles.card}>
-            <div className={styles.metaRow}>
-              <label>
-                <div className={styles.label}>IRN</div>
-                <input value={irn} onChange={(e) => setIrn(e.target.value)} />
-              </label>
-              <label>
-                <div className={styles.label}>Ack No</div>
-                <input
-                  value={ackNo}
-                  onChange={(e) => setAckNo(e.target.value)}
-                />
-              </label>
-              <label>
-                <div className={styles.label}>Ack Date</div>
-                <input
-                  type="date"
-                  value={ackDate}
-                  onChange={(e) => setAckDate(e.target.value)}
-                />
-              </label>
-            </div>
-          </section>
-
           {/* Invoice meta */}
           <section className={styles.card}>
             <div className={styles.metaRow}>
@@ -567,15 +535,15 @@ const CreateInvoice: React.FC = () => {
                     placeholder="Billed to address"
                   />
                 </label>
-                <label className={styles.formField}>
-                  <div className={styles.label}>Party PAN</div>
-                  <input
-                    className={styles.textInput}
-                    value={partyPan}
-                    onChange={(e) => setPartyPan(e.target.value)}
-                    placeholder="Party PAN"
-                  />
-                </label>
+                <label style={{ flex: 1 }}>
+                    <div className={styles.label}>Receiver's GSTIN</div>
+                    <input
+                      className={styles.textInput}
+                      value={receiverGstin}
+                      onChange={(e) => setReceiverGstin(e.target.value)}
+                      placeholder="Receiver GSTIN"
+                    />
+                  </label>
               </div>
 
               <div className={styles.columnRight}>
@@ -619,34 +587,7 @@ const CreateInvoice: React.FC = () => {
                   />
                 </label>
 
-                <div className={styles.rowGrid} style={{ marginTop: 6 }}>
-                  <label style={{ flex: 1 }}>
-                    <div className={styles.label}>Receiver's GSTIN</div>
-                    <input
-                      className={styles.textInput}
-                      value={receiverGstin}
-                      onChange={(e) => setReceiverGstin(e.target.value)}
-                      placeholder="Receiver GSTIN"
-                    />
-                  </label>
-                  <label style={{ width: 200 }}>
-                    <div className={styles.label}>Place of Supply</div>
-                    <select
-                      value={placeOfSupply}
-                      onChange={(e) => setPlaceOfSupply(e.target.value)}
-                      className={styles.textInput}
-                    >
-                      <option value="">
-                        -- Select State / Union Territory --
-                      </option>
-                      {STATES.map((s) => (
-                        <option key={s.name} value={s.name}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
+                
               </div>
             </div>
           </section>
@@ -872,10 +813,13 @@ const CreateInvoice: React.FC = () => {
                       placeholder="Enter Pincode"
                     />
                   </label>
+                  
                 </div>
               </div>
             </div>
           </section>
+          {/* Signature Section */}
+
 
           {topError && <div className={styles.formError}>{topError}</div>}
         </form>

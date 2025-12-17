@@ -303,35 +303,12 @@ export default function InvoiceView() {
         </header>
 
         <form className={styles.form}>
-          {/* IRN / ACK */}
-          <section className={styles.card}>
-            <div className={styles.metaRow}>
-              <label>
-                <div className={styles.label}>IRN</div>
-                <input value={invoice.irn ?? ""} readOnly />
-              </label>
-              <label>
-                <div className={styles.label}>Ack No</div>
-                <input value={invoice.ackNo ?? ""} readOnly />
-              </label>
-              <label>
-                <div className={styles.label}>Ack Date</div>
-                <input
-                  type="date"
-                  value={invoice.ackDate?.slice(0, 10) ?? ""}
-                  readOnly
-                />
-              </label>
-            </div>
-          </section>
+          
 
           {/* Invoice meta */}
           <section className={styles.card}>
             <div className={styles.metaRow}>
-              <label>
-                <div className={styles.label}>GSTIN</div>
-                <input value={invoice.gstin ?? ""} readOnly />
-              </label>
+              
               <label>
                 <div className={styles.label}>Invoice No</div>
                 <input value={invoice.invoiceNo ?? ""} readOnly />
@@ -381,15 +358,16 @@ export default function InvoiceView() {
                     readOnly
                   />
                 </label>
+                <label style={{ flex: 1 }}>
+                    <div className={styles.label}>Receiver's GSTIN</div>
+                    <input
+                      className={styles.textInput}
+                      value={invoice.receiverGstin ?? ""}
+                      readOnly
+                    />
+                  </label>
 
-                <label className={styles.formField}>
-                  <div className={styles.label}>Party PAN</div>
-                  <input
-                    className={styles.textInput}
-                    value={invoice.partyPan ?? ""}
-                    readOnly
-                  />
-                </label>
+                
               </div>
 
               <div className={styles.columnRight}>
@@ -416,24 +394,7 @@ export default function InvoiceView() {
                   />
                 </label>
 
-                <div className={styles.rowGrid}>
-                  <label style={{ flex: 1 }}>
-                    <div className={styles.label}>Receiver's GSTIN</div>
-                    <input
-                      className={styles.textInput}
-                      value={invoice.receiverGstin ?? ""}
-                      readOnly
-                    />
-                  </label>
-                  <label style={{ width: 200 }}>
-                    <div className={styles.label}>Place of Supply</div>
-                    <input
-                      className={styles.textInput}
-                      value={invoice.placeOfSupply ?? ""}
-                      readOnly
-                    />
-                  </label>
-                </div>
+                
               </div>
             </div>
           </section>
