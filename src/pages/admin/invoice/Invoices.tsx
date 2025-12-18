@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import styles from "../../assets/styles/admin/Invoices.module.css";
-import api from "../../api/axios";
+import styles from "../../../assets/styles/admin/Invoices.module.css";
+import api from "../../../api/axios";
 
 interface Invoice {
   _id: string;
@@ -48,9 +48,7 @@ const Invoices: React.FC = () => {
     } catch (err: any) {
       console.error("Failed to fetch invoices", err);
       const msg =
-        err?.response?.data?.error ||
-        err?.message ||
-        "Failed to load invoices";
+        err?.response?.data?.error || err?.message || "Failed to load invoices";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -72,39 +70,34 @@ const Invoices: React.FC = () => {
     } catch (err: any) {
       console.error("Delete failed", err);
       toast.error(
-        err?.response?.data?.error ||
-          err?.message ||
-          "Failed to delete invoice"
+        err?.response?.data?.error || err?.message || "Failed to delete invoice"
       );
     } finally {
       setDeletingId(null);
     }
   };
-const downloadInvoicePdf = async (
-  invoiceId: string,
-  invoiceNo?: string
-) => {
-  try {
-    const resp = await api.get(`/api/invoice/${invoiceId}/pdf`, {
-      responseType: "blob",
-    });
+  const downloadInvoicePdf = async (invoiceId: string, invoiceNo?: string) => {
+    try {
+      const resp = await api.get(`/api/invoice/${invoiceId}/pdf`, {
+        responseType: "blob",
+      });
 
-    const blob = new Blob([resp.data], { type: "application/pdf" });
-    const url = window.URL.createObjectURL(blob);
+      const blob = new Blob([resp.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `invoice-${invoiceNo || invoiceId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${invoiceNo || invoiceId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
 
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error("Failed to download PDF", err);
-    alert("Failed to download PDF");
-  }
-};
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to download PDF", err);
+      alert("Failed to download PDF");
+    }
+  };
 
   useEffect(() => {
     fetchInvoices();
@@ -155,15 +148,13 @@ const downloadInvoicePdf = async (
                   <td>{idx + 1}</td>
                   <td>{inv.invoiceNo}</td>
                   <td>{inv.billedTo?.name || "-"}</td>
-                   <td>{inv.receiverGstin || "-"}</td>
+                  <td>{inv.receiverGstin || "-"}</td>
                   <td>{formatDate(inv.dateOfInvoice || inv.createdAt)}</td>
                   <td>{formatAmount(inv.totals?.grandTotal)}</td>
                   <td className={styles.actions}>
                     <button
                       className={styles.viewBtn}
-                      onClick={() =>
-                        navigate(`/admin/invoices/${inv._id}`)
-                      }
+                      onClick={() => navigate(`/admin/invoices/${inv._id}`)}
                     >
                       View
                     </button>
@@ -175,14 +166,14 @@ const downloadInvoicePdf = async (
                     >
                       {deletingId === inv._id ? "Deleting..." : "Delete"}
                     </button>
-               <button
-  type="button"
-  className={styles.primary}
-  style={{ backgroundColor: "green" }}
-  onClick={() => downloadInvoicePdf(inv._id, inv.invoiceNo)}
->
-  Download PDF
-</button>
+                    <button
+                      type="button"
+                      className={styles.primary}
+                      style={{ backgroundColor: "green" }}
+                      onClick={() => downloadInvoicePdf(inv._id, inv.invoiceNo)}
+                    >
+                      Download PDF
+                    </button>
                   </td>
                 </tr>
               ))}

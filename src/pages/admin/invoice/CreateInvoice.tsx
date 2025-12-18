@@ -1,8 +1,8 @@
 // src/pages/admin/CreateInvoice.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axios";
-import styles from "../../assets/styles/admin/CreateInvoice.module.css";
+import api from "../../../api/axios";
+import styles from "../../../assets/styles/admin/CreateInvoice.module.css";
 
 /** ---- Types ---- */
 export interface IItem {
@@ -140,7 +140,6 @@ const STATES: { code?: string; name: string }[] = [
   { code: "WB", name: "West Bengal" },
 ];
 
-
 const CreateInvoice: React.FC = () => {
   const navigate = useNavigate();
 
@@ -234,11 +233,11 @@ const CreateInvoice: React.FC = () => {
   const HOME_STATE = "Uttarakhand";
   const isIntraState = placeOfSupply === HOME_STATE;
 
-const cgst = isIntraState ? +(subtotal * 0.09).toFixed(2) : 0;
-const sgst = isIntraState ? +(subtotal * 0.09).toFixed(2) : 0;
-const igst = !isIntraState ? +(subtotal * 0.18).toFixed(2) : 0;
+  const cgst = isIntraState ? +(subtotal * 0.09).toFixed(2) : 0;
+  const sgst = isIntraState ? +(subtotal * 0.09).toFixed(2) : 0;
+  const igst = !isIntraState ? +(subtotal * 0.18).toFixed(2) : 0;
 
-const grandTotal = +(subtotal + cgst + sgst + igst).toFixed(2);
+  const grandTotal = +(subtotal + cgst + sgst + igst).toFixed(2);
 
   const validateQuick = (): string | null => {
     if (!dateOfInvoice) return "Invoice date required";
@@ -418,50 +417,48 @@ const grandTotal = +(subtotal + cgst + sgst + igst).toFixed(2);
             {/* Personal Phone */}
             <div className={styles.smallLabel}>Phone (Personal)</div>
             <input
-  className={styles.headerInput}
-  type="tel"
-  value={`+91-${personalPhone}`}
-  placeholder="+91-XXXXXXXXXX"
-  onChange={(e) => {
-    let value = e.target.value;
+              className={styles.headerInput}
+              type="tel"
+              value={`+91-${personalPhone}`}
+              placeholder="+91-XXXXXXXXXX"
+              onChange={(e) => {
+                let value = e.target.value;
 
-    // Remove +91- if user tries to edit it
-    value = value.replace("+91-", "");
+                // Remove +91- if user tries to edit it
+                value = value.replace("+91-", "");
 
-    // Allow only numbers
-    value = value.replace(/\D/g, "");
+                // Allow only numbers
+                value = value.replace(/\D/g, "");
 
-    // Limit to 10 digits
-    if (value.length > 10) return;
+                // Limit to 10 digits
+                if (value.length > 10) return;
 
-    setPersonalPhone(value);
-  }}
-/>
-
+                setPersonalPhone(value);
+              }}
+            />
 
             {/* Alternate Phone */}
             <div className={styles.smallLabel}>Phone (Alternate)</div>
             <input
-  className={styles.headerInput}
-  type="tel"
-  value={`+91-${alternatePhone}`}
-  placeholder="+91-XXXXXXXXXX"
-  onChange={(e) => {
-    let value = e.target.value;
+              className={styles.headerInput}
+              type="tel"
+              value={`+91-${alternatePhone}`}
+              placeholder="+91-XXXXXXXXXX"
+              onChange={(e) => {
+                let value = e.target.value;
 
-    // remove prefix if user edits
-    value = value.replace("+91-", "");
+                // remove prefix if user edits
+                value = value.replace("+91-", "");
 
-    // allow only digits
-    value = value.replace(/\D/g, "");
+                // allow only digits
+                value = value.replace(/\D/g, "");
 
-    // limit to 10 digits
-    if (value.length > 10) return;
+                // limit to 10 digits
+                if (value.length > 10) return;
 
-    setAlternatePhone(value);
-  }}
-/>
-
+                setAlternatePhone(value);
+              }}
+            />
 
             {/* Email */}
             <div className={styles.smallLabel}>E-mail</div>
@@ -631,7 +628,7 @@ const grandTotal = +(subtotal + cgst + sgst + igst).toFixed(2);
           <section className={styles.card}>
             <div
               className={styles.itemTableheading}
-              style={{ fontWeight: 700, marginBottom: 8 }}
+              style={{ fontWeight: 700, marginBottom: 8, color: "#000" }}
             >
               Towards charges for sale of advertising space in outdoor media as
               per following details:
@@ -746,7 +743,9 @@ const grandTotal = +(subtotal + cgst + sgst + igst).toFixed(2);
               }}
             >
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700 }}>DISPLAY CHARGES</div>
+                <div style={{ fontWeight: 700, color: "#000" }}>
+                  DISPLAY CHARGES
+                </div>
                 <div style={{ marginTop: 10, color: "#555" }}>
                   Rupees in words:{" "}
                   <strong>{numberToWords(Math.floor(grandTotal))} Only</strong>

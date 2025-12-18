@@ -1,0 +1,232 @@
+/* ===============================
+   PAGE
+================================ */
+.page {
+  color: #111827;
+  font-weight: 600;
+  padding: 28px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc, #eef2f7);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ===============================
+   HEADER
+================================ */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.header p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Create Button */
+.createBtn {
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #fff;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
+}
+
+.createBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.35);
+}
+
+/* ===============================
+   TABLE CARD
+================================ */
+.tableCard {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* ===============================
+   TABLE HEADER
+================================ */
+.tableHeader {
+  display: grid;
+  grid-template-columns: 70px 220px 140px 1fr 160px 240px;
+  padding: 16px 20px;
+  background: #f9fafb;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #374151;
+}
+
+/* ===============================
+   TABLE ROW
+================================ */
+.tableRow {
+  display: grid;
+  grid-template-columns: 70px 220px 140px 1fr 160px 240px;
+  align-items: center;
+  padding: 18px 20px;
+  border-top: 1px solid #f1f5f9;
+  transition: background 0.2s ease;
+}
+
+.tableRow:hover {
+  background: #f8fafc;
+}
+
+/* Text styles */
+.bold {
+  font-weight: 700;
+  color: #111827;
+}
+
+.amount {
+  font-weight: 700;
+  color: #16a34a;
+}
+
+/* ===============================
+   ACTION BUTTONS
+================================ */
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+/* Edit */
+.edit {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.edit:hover {
+  background: #c7d2fe;
+}
+
+/* Delete */
+.delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.delete:hover {
+  background: #fecaca;
+}
+
+/* Download */
+.download {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.download:hover {
+  background: #bbf7d0;
+}
+
+/* Disabled */
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===============================
+   STATES
+================================ */
+.empty,
+.loading {
+  padding: 40px;
+  text-align: center;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* ===============================
+   RESPONSIVE (TABLE → CARDS)
+================================ */
+@media (max-width: 1024px) {
+  .tableHeader {
+    display: none;
+  }
+
+  .tableRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 16px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  }
+
+  .tableRow div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .tableRow div::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .actions {
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+
+/* ===============================
+   MOBILE EXTRA POLISH
+================================ */
+@media (max-width: 480px) {
+  .page {
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .createBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .actions button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}

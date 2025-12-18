@@ -7,13 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import Invoices from "./pages/admin/Invoices";
-import CreateInvoice from "./pages/admin/CreateInvoice";
+import Invoices from "./pages/admin/invoice/Invoices";
+import CreateInvoice from "./pages/admin/invoice/CreateInvoice";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import InvoiceView from "./pages/admin/InvoiceView";
-import QuotationForm from "./pages/admin/QuotationForm";
-import CreateQuotation from "./pages/admin/CreateQuotation";
+import InvoiceView from "./pages/admin/invoice/InvoiceView";
+import QuotationForm from "./pages/admin/Quotation/QuotationForm";
+import CreateQuotation from "./pages/admin/Quotation/CreateQuotation";
 
 function AppRoutes() {
   return (
@@ -38,8 +38,8 @@ function AppRoutes() {
           <Route path="invoices/create" element={<CreateInvoice />} />
           <Route path="invoices/:id" element={<InvoiceView />} />
           <Route path="quotation" element={<QuotationForm />} />
-          <Route path="/admin/invoice/create" element={<CreateQuotation />} />
-          <Route path="/admin/invoice/edit/:id" element={<CreateQuotation />} />
+          <Route path="/admin/quotation/create" element={<CreateQuotation />} />
+          <Route path="/admin/quotation/edit/:id" element={<CreateQuotation />} />
 
         </Route>
 

@@ -1,9 +1,9 @@
 // src/pages/admin/InvoiceView.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../api/axios";
+import api from "../../../api/axios";
 // use CreateInvoice styles so layout matches the form exactly
-import styles from "../../assets/styles/admin/CreateInvoice.module.css";
+import styles from "../../../assets/styles/admin/CreateInvoice.module.css";
 
 /** types copied from CreateInvoice */
 interface IItem {
