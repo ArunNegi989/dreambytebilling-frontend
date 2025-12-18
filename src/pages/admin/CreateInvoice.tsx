@@ -7,7 +7,7 @@ import styles from "../../assets/styles/admin/CreateInvoice.module.css";
 /** ---- Types ---- */
 export interface IItem {
   id: string;
-  location: string;
+  Services: string;
   sacHsn: string;
   specification: string;
   qty: number;
@@ -18,7 +18,7 @@ export interface IItem {
 /** ---- Helpers ---- */
 const newItem = (id: string): IItem => ({
   id,
-  location: "",
+  Services: "",
   sacHsn: "",
   specification: "",
   qty: 1,
@@ -140,6 +140,7 @@ const STATES: { code?: string; name: string }[] = [
   { code: "WB", name: "West Bengal" },
 ];
 
+
 const CreateInvoice: React.FC = () => {
   const navigate = useNavigate();
 
@@ -153,7 +154,7 @@ const CreateInvoice: React.FC = () => {
   const [cin, setCin] = useState("U74999DL2016PTC307034");
   const [msme, setMsme] = useState("UDYAM-UK-05-0002107");
   const [officeAddress, setOfficeAddress] = useState(
-    "67/1, Arya Nagar, Block-II, Rajpur Road, Dehradun, Uttarakhand - 248001"
+    "Dream Byte Solutions Pvt. Ltd 3rd Floor, above Bank of India, Sahastradhara Road, Near IT Park,Dehradun, Uttarakhand"
   );
 
   const [gstin, setGstin] = useState(supplierGstin);
@@ -230,17 +231,21 @@ const CreateInvoice: React.FC = () => {
     () => items.reduce((s, it) => s + (Number(it.amount) || 0), 0),
     [items]
   );
-  const igst = 0;
-  const cgst = +(subtotal * 0.09).toFixed(2);
-  const sgst = +(subtotal * 0.09).toFixed(2);
-  const grandTotal = +(subtotal + igst + cgst + sgst).toFixed(2);
+  const HOME_STATE = "Uttarakhand";
+  const isIntraState = placeOfSupply === HOME_STATE;
+
+const cgst = isIntraState ? +(subtotal * 0.09).toFixed(2) : 0;
+const sgst = isIntraState ? +(subtotal * 0.09).toFixed(2) : 0;
+const igst = !isIntraState ? +(subtotal * 0.18).toFixed(2) : 0;
+
+const grandTotal = +(subtotal + cgst + sgst + igst).toFixed(2);
 
   const validateQuick = (): string | null => {
     if (!dateOfInvoice) return "Invoice date required";
     if (!billedToName.trim()) return "Billed to name required";
     if (!items.length) return "Add at least one line item";
     for (const it of items) {
-      if (!it.location.trim()) return "Each item needs Location";
+      if (!it.Services.trim()) return "Each item needs Services";
       if (!it.sacHsn.trim()) return "Each item needs SAC/HSN";
       if (!it.specification.trim()) return "Each item needs Specification";
       if (it.qty <= 0) return "Qty must be > 0";
@@ -291,7 +296,7 @@ const CreateInvoice: React.FC = () => {
     // prepare items
     const preparedItems = items.map((it) => ({
       id: it.id,
-      location: it.location || "",
+      Services: it.Services || "",
       sacHsn: it.sacHsn || "",
       specification: it.specification || "",
       qty: Number(it.qty || 0),
@@ -413,20 +418,50 @@ const CreateInvoice: React.FC = () => {
             {/* Personal Phone */}
             <div className={styles.smallLabel}>Phone (Personal)</div>
             <input
-              className={styles.headerInput}
-              value={personalPhone}
-              onChange={(e) => setPersonalPhone(e.target.value)}
-              placeholder="Enter personal phone"
-            />
+  className={styles.headerInput}
+  type="tel"
+  value={`+91-${personalPhone}`}
+  placeholder="+91-XXXXXXXXXX"
+  onChange={(e) => {
+    let value = e.target.value;
+
+    // Remove +91- if user tries to edit it
+    value = value.replace("+91-", "");
+
+    // Allow only numbers
+    value = value.replace(/\D/g, "");
+
+    // Limit to 10 digits
+    if (value.length > 10) return;
+
+    setPersonalPhone(value);
+  }}
+/>
+
 
             {/* Alternate Phone */}
             <div className={styles.smallLabel}>Phone (Alternate)</div>
             <input
-              className={styles.headerInput}
-              value={alternatePhone}
-              onChange={(e) => setAlternatePhone(e.target.value)}
-              placeholder="Enter alternate phone"
-            />
+  className={styles.headerInput}
+  type="tel"
+  value={`+91-${alternatePhone}`}
+  placeholder="+91-XXXXXXXXXX"
+  onChange={(e) => {
+    let value = e.target.value;
+
+    // remove prefix if user edits
+    value = value.replace("+91-", "");
+
+    // allow only digits
+    value = value.replace(/\D/g, "");
+
+    // limit to 10 digits
+    if (value.length > 10) return;
+
+    setAlternatePhone(value);
+  }}
+/>
+
 
             {/* Email */}
             <div className={styles.smallLabel}>E-mail</div>
@@ -605,7 +640,7 @@ const CreateInvoice: React.FC = () => {
             <div className={styles.itemsTable}>
               <div className={styles.itemsGridHeader}>
                 <div>S.N.</div>
-                <div>Location</div>
+                <div>Services</div>
                 <div>SAC/HSN</div>
                 <div>Qty</div>
                 <div>Note</div>
@@ -616,7 +651,7 @@ const CreateInvoice: React.FC = () => {
 
               {items.map((it, idx) => {
                 const isInvalid =
-                  !it.location.trim() ||
+                  !it.Services.trim() ||
                   !it.sacHsn.trim() ||
                   !it.specification.trim() ||
                   it.qty <= 0;
@@ -630,10 +665,10 @@ const CreateInvoice: React.FC = () => {
                     <div className={styles.itemIndex}>{idx + 1}</div>
                     <input
                       className={styles.itemSmall}
-                      placeholder="Location"
-                      value={it.location}
+                      placeholder="Services"
+                      value={it.Services}
                       onChange={(e) =>
-                        updateItem(it.id, { location: e.target.value })
+                        updateItem(it.id, { Services: e.target.value })
                       }
                     />
                     <input

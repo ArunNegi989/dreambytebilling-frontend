@@ -8,7 +8,7 @@ import styles from "../../assets/styles/admin/CreateInvoice.module.css";
 /** types copied from CreateInvoice */
 interface IItem {
   id: string;
-  location: string;
+  Services: string;
   sacHsn: string;
   specification: string;
   qty: number;
@@ -405,7 +405,7 @@ export default function InvoiceView() {
             <div className={styles.itemsTable}>
               <div className={styles.itemsGridHeader}>
                 <div>S.N.</div>
-                <div>Location</div>
+                <div>Services</div>
                 <div>SAC/HSN</div>
                 <div>Qty</div>
                 <div>Note</div>
@@ -422,7 +422,7 @@ export default function InvoiceView() {
                     <div className={styles.itemIndex}>{idx + 1}</div>
                     <input
                       className={styles.itemSmall}
-                      value={it.location ?? ""}
+                      value={it.Services ?? ""}
                       readOnly
                     />
                     <input

@@ -8,6 +8,7 @@ interface Invoice {
   _id: string;
   invoiceNo: string;
   billedTo?: any;
+  receiverGstin?: any;
   dateOfInvoice?: string;
   totals?: { grandTotal?: number };
   createdAt?: string;
@@ -79,6 +80,31 @@ const Invoices: React.FC = () => {
       setDeletingId(null);
     }
   };
+const downloadInvoicePdf = async (
+  invoiceId: string,
+  invoiceNo?: string
+) => {
+  try {
+    const resp = await api.get(`/api/invoice/${invoiceId}/pdf`, {
+      responseType: "blob",
+    });
+
+    const blob = new Blob([resp.data], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice-${invoiceNo || invoiceId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Failed to download PDF", err);
+    alert("Failed to download PDF");
+  }
+};
 
   useEffect(() => {
     fetchInvoices();
@@ -117,6 +143,7 @@ const Invoices: React.FC = () => {
                 <th>#</th>
                 <th>Invoice No</th>
                 <th>Customer</th>
+                <th>Receiver's GSTIN</th>
                 <th>Date</th>
                 <th>Amount</th>
                 <th>Actions</th>
@@ -128,6 +155,7 @@ const Invoices: React.FC = () => {
                   <td>{idx + 1}</td>
                   <td>{inv.invoiceNo}</td>
                   <td>{inv.billedTo?.name || "-"}</td>
+                   <td>{inv.receiverGstin || "-"}</td>
                   <td>{formatDate(inv.dateOfInvoice || inv.createdAt)}</td>
                   <td>{formatAmount(inv.totals?.grandTotal)}</td>
                   <td className={styles.actions}>
@@ -147,6 +175,14 @@ const Invoices: React.FC = () => {
                     >
                       {deletingId === inv._id ? "Deleting..." : "Delete"}
                     </button>
+               <button
+  type="button"
+  className={styles.primary}
+  style={{ backgroundColor: "green" }}
+  onClick={() => downloadInvoicePdf(inv._id, inv.invoiceNo)}
+>
+  Download PDF
+</button>
                   </td>
                 </tr>
               ))}
