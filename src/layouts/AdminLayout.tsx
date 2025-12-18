@@ -99,8 +99,9 @@ const AdminLayout: React.FC = () => {
 
           
 
-          <NavLink
-            to="/admin/reports"
+          
+           <NavLink
+            to="quotation"
             className={({ isActive }) =>
               isActive
                 ? `${styles.navItem} ${styles.navItemActive}`
@@ -108,7 +109,7 @@ const AdminLayout: React.FC = () => {
             }
           >
             <span className={styles.navIcon}>📈</span>
-            <span>Reports</span>
+            <span>Quatations</span>
           </NavLink>
 
          

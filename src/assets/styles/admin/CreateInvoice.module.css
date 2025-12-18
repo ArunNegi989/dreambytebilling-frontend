@@ -272,6 +272,7 @@ select:focus {
 
 .itemRow {
     padding: 10px;
+    color: #111;
     border-radius: 8px;
     background: #ffffff;
     border: 1px solid transparent;
