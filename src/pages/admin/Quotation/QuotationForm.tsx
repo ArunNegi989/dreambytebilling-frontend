@@ -161,7 +161,7 @@ export default function QuotationList() {
                   disabled={downloadingId === q._id}
                   onClick={() => downloadPdf(q._id, q.quotationNo)}
                 >
-                  {downloadingId === q._id ? "Downloading..." : "PDF"}
+                  {downloadingId === q._id ? "Downloading..." : "Download PDF"}
                 </button>
               </div>
             </div>
