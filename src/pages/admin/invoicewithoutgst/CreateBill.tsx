@@ -1,6 +1,6 @@
 // src/pages/admin/CreateInvoice.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "../../../assets/styles/admin/CreateInvoice.module.css";
 import { toast } from "react-toastify";
 import api from "../../../api/axios";
@@ -69,14 +69,12 @@ function numberToWords(n: number): string {
     "Eighty",
     "Ninety",
   ];
-
   function twoDigits(num: number) {
     if (num < 20) return a[num];
     const tens = Math.floor(num / 10);
     const ones = num % 10;
     return b[tens] + (ones ? " " + a[ones] : "");
   }
-
   function threeDigits(num: number) {
     const hundred = Math.floor(num / 100);
     const rest = num % 100;
@@ -85,7 +83,6 @@ function numberToWords(n: number): string {
       (rest ? twoDigits(rest) : "")
     );
   }
-
   const crore = Math.floor(n / 10000000);
   n = n % 10000000;
   const lakh = Math.floor(n / 100000);
@@ -103,9 +100,10 @@ function numberToWords(n: number): string {
 
 const CreateBill: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>(); // bill id from URL
+  const isEdit = !!id;
 
   /** ---- FORM STATE (only what goes in payload) ---- */
-
   // header
   const [panNo, setPanNo] = useState("AAKCD5928M");
   const [supplierGstin, setSupplierGstin] = useState("05AAKCD5928M1Z7");
@@ -151,6 +149,7 @@ const CreateBill: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState<string | null>(null);
 
+  /** ---- COPY BILLING TO SHIPPING ---- */
   useEffect(() => {
     if (sameAsBilling) {
       setShipToName(billedToName || "");
@@ -158,13 +157,85 @@ const CreateBill: React.FC = () => {
     }
   }, [sameAsBilling, billedToName, billedToAddress]);
 
+  /** ---- EDIT MODE: load bill by id ---- */
+  useEffect(() => {
+    if (!isEdit || !id) return;
+
+    const fetchBill = async () => {
+      try {
+        const resp = await api.get(`/api/bill/getbillbyid/${id}`);
+        const bill = resp.data;
+
+        // Header
+        setPanNo(bill.header?.panNo || "");
+        setSupplierGstin(bill.header?.supplierGstin || "");
+        setCategory(bill.header?.category || "");
+        setOfficeEmail(bill.header?.office?.officeEmail || "");
+        setPersonalPhone(bill.header?.office?.personalPhone || "");
+        setAlternatePhone(bill.header?.office?.alternatePhone || "");
+        setCin(bill.header?.office?.cin || "");
+        setMsme(bill.header?.office?.msme || "");
+        setOfficeAddress(bill.header?.office?.officeAddress || "");
+
+        // Invoice meta
+        setGstin(bill.gstin || bill.header?.supplierGstin || "");
+        setDateOfInvoice(
+          bill.dateOfInvoice
+            ? bill.dateOfInvoice.slice(0, 10)
+            : new Date(bill.createdAt || Date.now())
+                .toISOString()
+                .slice(0, 10)
+        );
+
+        // Billed / Ship
+        setBilledToName(bill.billedTo?.name || "");
+        setBilledToAddress(bill.billedTo?.address || "");
+        setShipToName(bill.shipTo?.name || "");
+        setShipToAddress(bill.shipTo?.address || "");
+        setReceiverGstin(bill.receiverGstin || "");
+
+        // Items
+        if (bill.items && bill.items.length) {
+          setItems(
+            bill.items.map((it: any, idx: number) => ({
+              id: `itm-${idx + 1}`,
+              Services: it.Services || "",
+              sacHsn: it.sacHsn || "",
+              specification: it.specification || "",
+              qty: it.qty || 0,
+              rate: it.rate || 0,
+              amount: it.amount || 0,
+            }))
+          );
+        } else {
+          setItems([newItem("itm-1")]);
+        }
+
+        // Bank
+        setBankName(bill.bank?.bankName || "");
+        setAccountNo(bill.bank?.accountNo || "");
+        setIfsc(bill.bank?.ifsc || "");
+        setBranch(bill.bank?.branch || "");
+        setPincode(bill.bank?.pincode || "");
+      } catch (err: any) {
+        console.error("Failed to load bill for edit", err);
+        toast.error(
+          err?.response?.data?.message || "Failed to load bill for editing"
+        );
+        navigate("/admin/bill");
+      }
+    };
+
+    fetchBill();
+  }, [isEdit, id, navigate]);
+
+  /** ---- ITEMS HANDLERS ---- */
   const updateItem = (id: string, patch: Partial<IItem>) => {
     setItems((prev) =>
       prev.map((it) => {
         if (it.id !== id) return it;
         const updated = { ...it, ...patch };
-        updated.amount =
-          Number(updated.qty || 0) * Number(updated.rate || 0);
+        updated.amount = Number(updated.qty || 0) * Number(updated.rate || 0);
         return updated;
       })
     );
@@ -180,13 +251,14 @@ const CreateBill: React.FC = () => {
     setItems((p) => p.filter((it) => it.id !== id));
   };
 
+  /** ---- TOTALS ---- */
   const subtotal = useMemo(
     () => items.reduce((s, it) => s + (Number(it.amount) || 0), 0),
     [items]
   );
-
   const grandTotal = +subtotal.toFixed(2);
 
+  /** ---- VALIDATION ---- */
   const validateQuick = (): string | null => {
     if (!billedToName.trim()) return "Billed to name required";
     if (!items.length) return "Add at least one line item";
@@ -204,6 +276,7 @@ const CreateBill: React.FC = () => {
     [dateOfInvoice, billedToName, items]
   );
 
+  /** ---- SUBMIT ---- */
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setTopError(null);
@@ -223,9 +296,7 @@ const CreateBill: React.FC = () => {
         specification: it.specification,
         qty: Number(it.qty),
         rate: Number(it.rate),
-        amount: Number(
-          (Number(it.qty) * Number(it.rate)).toFixed(2)
-        ),
+        amount: Number((Number(it.qty) * Number(it.rate)).toFixed(2)),
       }));
 
       const payload = {
@@ -268,15 +339,18 @@ const CreateBill: React.FC = () => {
         },
       };
 
-      await api.post("/api/bill/createbill", payload);
+      if (isEdit && id) {
+        await api.put(`/api/bill/updatebill/${id}`, payload);
+        toast.success("Bill updated successfully");
+      } else {
+        await api.post("/api/bill/createbill", payload);
+        toast.success("Bill created successfully");
+      }
 
-      toast.success("Bill created successfully");
       navigate("/admin/bill");
     } catch (err: any) {
       console.error(err);
-      toast.error(
-        err?.response?.data?.message || "Bill creation failed"
-      );
+      toast.error(err?.response?.data?.message || "Bill save failed");
     } finally {
       setSaving(false);
     }
@@ -295,6 +369,7 @@ const CreateBill: React.FC = () => {
               value={panNo}
               onChange={(e) => setPanNo(e.target.value)}
             />
+
             <div className={styles.smallLabel}>GSTIN</div>
             <input
               className={styles.headerInput}
@@ -304,18 +379,21 @@ const CreateBill: React.FC = () => {
                 setGstin(e.target.value);
               }}
             />
+
             <div className={styles.smallLabel}>CATEGORY</div>
             <input
               className={styles.headerInput}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             />
+
             <div className={styles.smallLabel}>CIN</div>
             <input
               className={styles.headerInput}
               value={cin}
               onChange={(e) => setCin(e.target.value)}
             />
+
             <div className={styles.smallLabel}>MSME</div>
             <input
               className={styles.headerInput}
@@ -326,8 +404,7 @@ const CreateBill: React.FC = () => {
 
           <div className={styles.headerCenter}>
             <div className={styles.logoPlaceholder}>
-              Dream Byte solutions
-              <br />
+              Dream Byte solutions <br />
               Advertising Pvt. Ltd.
             </div>
           </div>
@@ -385,12 +462,13 @@ const CreateBill: React.FC = () => {
 
         <header className={styles.header}>
           <div>
-            <h1 className={styles.title}>Create Invoice</h1>
+            <h1 className={styles.title}>
+              {isEdit ? "Edit Invoice" : "Create Invoice"}
+            </h1>
             <p className={styles.subtitle}>
               Fill fields exactly as the attached invoice.
             </p>
           </div>
-
           <div className={styles.headerActions}>
             <button
               type="button"
@@ -406,7 +484,11 @@ const CreateBill: React.FC = () => {
               disabled={!!quickError || saving}
               title={quickError ?? "Save invoice"}
             >
-              {saving ? "Saving..." : "Save & Generate"}
+              {saving
+                ? "Saving..."
+                : isEdit
+                ? "Update & Generate"
+                : "Save & Generate"}
             </button>
           </div>
         </header>
@@ -425,6 +507,7 @@ const CreateBill: React.FC = () => {
                     Enter billing details here
                   </div>
                 </div>
+
                 <label className={styles.formField}>
                   <input
                     className={styles.textInput}
@@ -433,6 +516,7 @@ const CreateBill: React.FC = () => {
                     placeholder="Billed to name"
                   />
                 </label>
+
                 <label
                   className={`${styles.formField} ${styles.textareaField}`}
                 >
@@ -446,6 +530,7 @@ const CreateBill: React.FC = () => {
                     placeholder="Billed to address"
                   />
                 </label>
+
                 <label style={{ flex: 1 }}>
                   <div className={styles.label}>Receiver's GSTIN</div>
                   <input
@@ -486,6 +571,7 @@ const CreateBill: React.FC = () => {
                     disabled={sameAsBilling}
                   />
                 </label>
+
                 <label
                   className={`${styles.formField} ${styles.textareaField}`}
                 >
@@ -545,22 +631,29 @@ const CreateBill: React.FC = () => {
                     }`}
                   >
                     <div className={styles.itemIndex}>{idx + 1}</div>
+
                     <input
                       className={styles.itemSmall}
                       placeholder="Services"
                       value={it.Services}
                       onChange={(e) =>
-                        updateItem(it.id, { Services: e.target.value })
+                        updateItem(it.id, {
+                          Services: e.target.value,
+                        })
                       }
                     />
+
                     <input
                       className={styles.itemSmall}
                       placeholder="SAC/HSN"
                       value={it.sacHsn}
                       onChange={(e) =>
-                        updateItem(it.id, { sacHsn: e.target.value })
+                        updateItem(it.id, {
+                          sacHsn: e.target.value,
+                        })
                       }
                     />
+
                     <input
                       type="number"
                       min={1}
@@ -573,6 +666,7 @@ const CreateBill: React.FC = () => {
                         })
                       }
                     />
+
                     <input
                       className={styles.itemDesc}
                       placeholder="Enter Note"
@@ -583,6 +677,7 @@ const CreateBill: React.FC = () => {
                         })
                       }
                     />
+
                     <input
                       type="number"
                       min={0}
@@ -596,9 +691,11 @@ const CreateBill: React.FC = () => {
                         })
                       }
                     />
+
                     <div className={styles.itemAmount}>
                       {formatCurrency(it.amount || 0)}
                     </div>
+
                     <div className={styles.itemActionsCell}>
                       <button
                         type="button"
@@ -634,9 +731,7 @@ const CreateBill: React.FC = () => {
               }}
             >
               <div style={{ flex: 1 }}>
-                <div
-                  style={{ fontWeight: 700, color: "#000" }}
-                >
+                <div style={{ fontWeight: 700, color: "#000" }}>
                   DISPLAY CHARGES
                 </div>
                 <div
@@ -701,15 +796,19 @@ const CreateBill: React.FC = () => {
                 >
                   Our Bank Details
                 </div>
+
                 <div className={styles.bankGrid}>
                   <label>
                     <div className={styles.label}>Bank Name</div>
                     <input
                       value={bankName}
-                      onChange={(e) => setBankName(e.target.value)}
+                      onChange={(e) =>
+                        setBankName(e.target.value)
+                      }
                       placeholder="Enter Bank Name"
                     />
                   </label>
+
                   <label>
                     <div className={styles.label}>A/C Number</div>
                     <input
@@ -720,6 +819,7 @@ const CreateBill: React.FC = () => {
                       placeholder="Enter Account Number"
                     />
                   </label>
+
                   <label>
                     <div className={styles.label}>IFSC Code</div>
                     <input
@@ -728,6 +828,7 @@ const CreateBill: React.FC = () => {
                       placeholder="Enter IFSC Code"
                     />
                   </label>
+
                   <label>
                     <div className={styles.label}>Branch</div>
                     <input
@@ -741,7 +842,9 @@ const CreateBill: React.FC = () => {
                     <div className={styles.label}>Pincode</div>
                     <input
                       value={pincode}
-                      onChange={(e) => setPincode(e.target.value)}
+                      onChange={(e) =>
+                        setPincode(e.target.value)
+                      }
                       placeholder="Enter Pincode"
                     />
                   </label>
@@ -760,6 +863,7 @@ const CreateBill: React.FC = () => {
       <aside className={styles.right}>
         <div className={styles.summaryCard}>
           <h3>Summary</h3>
+
           <div className={styles.summaryRow}>
             <div>Subtotal</div>
             <div>{formatCurrency(subtotal)}</div>
@@ -779,8 +883,13 @@ const CreateBill: React.FC = () => {
               onClick={handleSubmit}
               disabled={!!quickError || saving}
             >
-              {saving ? "Saving..." : "Save & Generate"}
+              {saving
+                ? "Saving..."
+                : isEdit
+                ? "Update & Generate"
+                : "Save & Generate"}
             </button>
+
             <button
               type="button"
               className={styles.ghostFull}

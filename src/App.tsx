@@ -44,6 +44,7 @@ function AppRoutes() {
           <Route path="/admin/quotation/edit/:id" element={<CreateQuotation />} />
           <Route path="bill" element={<Bill />} />
           <Route path="/admin/bill/createbill" element={<CreateBill />} />
+          <Route path="/admin/bill/createbill/:id" element={<CreateBill />} />
 
         </Route>
 

@@ -74,28 +74,28 @@ const Bill: React.FC = () => {
   };
 
   /* ---------------- DOWNLOAD PDF ---------------- */
-  const downloadBillPdf = async (billId: string, billNo?: string) => {
-    try {
-      const resp = await api.get(`/api/invoice/${billId}/pdf`, {
-        responseType: "blob",
-      });
+ const downloadBillPdf = async (billId: string, billNo?: string) => {
+  try {
+    const resp = await api.get(`/api/bill/${billId}/pdf`, {
+      responseType: "blob",
+    });
 
-      const blob = new Blob([resp.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
+    const blob = new Blob([resp.data], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `bill-${billNo || billId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bill-${billNo || billId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Failed to download PDF", err);
-      alert("Failed to download PDF");
-    }
-  };
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to download PDF");
+  }
+};
 
   useEffect(() => {
     fetchBills();
@@ -152,9 +152,9 @@ const Bill: React.FC = () => {
                   <td className={styles.actions}>
                     <button
                       className={styles.viewBtn}
-                      onClick={() => navigate(`/admin/invoices/${bill._id}`)}
+                      onClick={() => navigate(`/admin/bill/createbill/${bill._id}`)}
                     >
-                      View
+                      Edit Bill
                     </button>
 
                     <button
