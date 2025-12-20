@@ -4,6 +4,9 @@ import styles from "../../assets/styles/auth/Login.module.css";
 import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { isTokenValid } from "../../utils/auth";
+
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -91,6 +94,12 @@ const Login: React.FC = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+  if (isTokenValid()) {
+    navigate("/admin");
+  }
+}, []);
+
 
   return (
     <div className={styles.page}>

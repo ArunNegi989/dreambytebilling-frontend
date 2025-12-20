@@ -1,24 +1,22 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { isTokenValid } from "../utils/auth";
 
 interface Props {
-  children: JSX.Element;
+  children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<Props> = ({ children }) => {
-  let user = null;
-  try {
-    const raw = localStorage.getItem("user");
-    user = raw ? JSON.parse(raw) : null;
-  } catch {
-    user = null;
+const ProtectedRoute = ({ children }: Props) => {
+  const tokenValid = isTokenValid();
+  const user = localStorage.getItem("user");
+
+  if (!tokenValid || !user) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    return <Navigate to="/auth/login" replace />;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
