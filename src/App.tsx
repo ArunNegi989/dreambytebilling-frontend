@@ -14,6 +14,8 @@ import Register from "./pages/auth/Register";
 import InvoiceView from "./pages/admin/invoice/InvoiceView";
 import QuotationForm from "./pages/admin/Quotation/QuotationForm";
 import CreateQuotation from "./pages/admin/Quotation/CreateQuotation";
+import Bill from "./pages/admin/invoicewithoutgst/Bill";
+import CreateBill from "./pages/admin/invoicewithoutgst/CreateBill";
 
 function AppRoutes() {
   return (
@@ -40,6 +42,8 @@ function AppRoutes() {
           <Route path="quotation" element={<QuotationForm />} />
           <Route path="/admin/quotation/create" element={<CreateQuotation />} />
           <Route path="/admin/quotation/edit/:id" element={<CreateQuotation />} />
+          <Route path="bill" element={<Bill />} />
+          <Route path="/admin/bill/createbill" element={<CreateBill />} />
 
         </Route>
 

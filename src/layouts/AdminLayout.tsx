@@ -96,6 +96,17 @@ const AdminLayout: React.FC = () => {
             <span className={styles.navIcon}>🧾</span>
             <span>Invoices</span>
           </NavLink>
+          <NavLink
+            to="bill"
+            className={({ isActive }) =>
+              isActive
+                ? `${styles.navItem} ${styles.navItemActive}`
+                : styles.navItem
+            }
+          >
+            <span className={styles.navIcon}>🧾</span>
+            <span>Invoices Without GST</span>
+          </NavLink>
 
           
 
