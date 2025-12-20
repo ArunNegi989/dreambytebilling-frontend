@@ -8,6 +8,7 @@ import styles from "../../../assets/styles/admin/CreateInvoice.module.css";
 export interface IItem {
   id: string;
   Services: string;
+  serviceCategory: string;
   sacHsn: string;
   specification: string;
   qty: number;
@@ -19,6 +20,7 @@ export interface IItem {
 const newItem = (id: string): IItem => ({
   id,
   Services: "",
+  serviceCategory: "",
   sacHsn: "",
   specification: "",
   qty: 1,
@@ -364,6 +366,16 @@ const CreateInvoice: React.FC = () => {
       setSaving(false);
     }
   };
+/** ---- Service Category Dropdown ---- */
+const SERVICE_CATEGORY_SAC_MAP: Record<string, string> = {
+  "Graphics": "998313",
+  "Website Development": "998314",
+  "Photography / Video": "998386",
+  "Digital Marketing": "998365",
+  "Event Management": "998596",
+  "Printing": "998912",
+  "Studio on Rent": "997212",
+};
 
   return (
     <div className={styles.page}>
@@ -638,6 +650,7 @@ const CreateInvoice: React.FC = () => {
               <div className={styles.itemsGridHeader}>
                 <div>S.N.</div>
                 <div>Services</div>
+                <div>Service Type</div>
                 <div>SAC/HSN</div>
                 <div>Qty</div>
                 <div>Note</div>
@@ -668,14 +681,31 @@ const CreateInvoice: React.FC = () => {
                         updateItem(it.id, { Services: e.target.value })
                       }
                     />
+                    <select
+  className={styles.itemSmall}
+  value={it.serviceCategory}
+  onChange={(e) => {
+    const selected = e.target.value;
+    updateItem(it.id, {
+      serviceCategory: selected,
+      sacHsn: SERVICE_CATEGORY_SAC_MAP[selected] || "",
+    });
+  }}
+>
+  <option value="">-- Select Type --</option>
+  {Object.keys(SERVICE_CATEGORY_SAC_MAP).map((type) => (
+    <option key={type} value={type}>
+      {type}
+    </option>
+  ))}
+</select>
+
                     <input
-                      className={styles.itemSmall}
-                      placeholder="SAC/HSN"
-                      value={it.sacHsn}
-                      onChange={(e) =>
-                        updateItem(it.id, { sacHsn: e.target.value })
-                      }
-                    />
+  className={styles.itemSmall}
+  placeholder="SAC/HSN"
+  value={it.sacHsn}
+  readOnly
+/>
                     <input
                       type="number"
                       min={1}
