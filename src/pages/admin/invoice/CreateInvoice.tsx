@@ -144,14 +144,14 @@ const CreateInvoice: React.FC = () => {
   const navigate = useNavigate();
 
   // Header + meta fields (kept same as your form)
-  const [panNo, setPanNo] = useState("AAKCM6690D");
-  const [supplierGstin, setSupplierGstin] = useState("05AAKCM6690D1ZC");
-  const [category, setCategory] = useState("ADVERTISING AGENCY");
-  const [personalPhone, setPersonalPhone] = useState("");
-  const [alternatePhone, setAlternatePhone] = useState("");
-  const [officeEmail, setOfficeEmail] = useState("accounts@media24x7.co");
-  const [cin, setCin] = useState("U74999DL2016PTC307034");
-  const [msme, setMsme] = useState("UDYAM-UK-05-0002107");
+  const [panNo, setPanNo] = useState("AAKCD5928M");
+  const [supplierGstin, setSupplierGstin] = useState("05AAKCD5928M1Z7");
+  const [category, setCategory] = useState("MARKETING AGENCY");
+  const [personalPhone, setPersonalPhone] = useState("8279720490");
+  const [alternatePhone, setAlternatePhone] = useState("9258332639");
+  const [officeEmail, setOfficeEmail] = useState("info@dreambytesolution.com");
+  const [cin, setCin] = useState("UC3122UT20240PC01C799");
+  const [msme, setMsme] = useState("UDYAM-UK-05-0057194");
   const [officeAddress, setOfficeAddress] = useState(
     "Dream Byte Solutions Pvt. Ltd 3rd Floor, above Bank of India, Sahastradhara Road, Near IT Park,Dehradun, Uttarakhand"
   );
@@ -172,14 +172,14 @@ const CreateInvoice: React.FC = () => {
   const [shipToName, setShipToName] = useState("");
   const [shipToAddress, setShipToAddress] = useState("");
   const [sameAsBilling, setSameAsBilling] = useState(false);
-  const [pincode, setPincode] = useState("");
+  const [pincode, setPincode] = useState("248013");
   const [receiverGstin, setReceiverGstin] = useState("");
   const [invoiceNo, setInvoiceNo] = useState("");
   const [items, setItems] = useState<IItem[]>([newItem("itm-1")]);
-  const [bankName, setBankName] = useState("ICICI Ltd");
-  const [accountNo, setAccountNo] = useState("025051000008");
-  const [ifsc, setIfsc] = useState("ICIC0000250");
-  const [branch, setBranch] = useState("Sector-5 Dwarka New Delhi-110075");
+  const [bankName, setBankName] = useState("Punjab National Bank");
+  const [accountNo, setAccountNo] = useState("4925002100003174");
+  const [ifsc, setIfsc] = useState("PUNB0492500");
+  const [branch, setBranch] = useState("Sahastradhara Road");
 
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState<string | null>(null);
