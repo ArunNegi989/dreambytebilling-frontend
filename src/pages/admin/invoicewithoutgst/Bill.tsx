@@ -74,28 +74,28 @@ const Bill: React.FC = () => {
   };
 
   /* ---------------- DOWNLOAD PDF ---------------- */
- const downloadBillPdf = async (billId: string, billNo?: string) => {
-  try {
-    const resp = await api.get(`/api/bill/${billId}/pdf`, {
-      responseType: "blob",
-    });
+  const downloadBillPdf = async (billId: string, billNo?: string) => {
+    try {
+      const resp = await api.get(`/api/bill/${billId}/pdf`, {
+        responseType: "blob",
+      });
 
-    const blob = new Blob([resp.data], { type: "application/pdf" });
-    const url = window.URL.createObjectURL(blob);
+      const blob = new Blob([resp.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bill-${billNo || billId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bill-${billNo || billId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
 
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to download PDF");
-  }
-};
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to download PDF");
+    }
+  };
 
   useEffect(() => {
     fetchBills();
@@ -131,7 +131,7 @@ const Bill: React.FC = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>#</th>
+                <th>S no.</th>
                 <th>Bill No</th>
                 <th>Customer</th>
                 <th>Receiver's GSTIN</th>
@@ -143,16 +143,28 @@ const Bill: React.FC = () => {
             <tbody>
               {bills.map((bill, idx) => (
                 <tr key={bill._id}>
-                  <td>{idx + 1}</td>
-                  <td>{bill.billNo}</td>
-                  <td>{bill.billedTo?.name || "-"}</td>
-                  <td>{bill.receiverGstin || "-"}</td>
-                  <td>{formatDate(bill.dateOfInvoice || bill.createdAt)}</td>
-                  <td>{formatAmount(bill.totals?.grandTotal)}</td>
-                  <td className={styles.actions}>
+                  <td data-label="#">{idx + 1}</td>
+
+                  <td data-label="Bill No">{bill.billNo}</td>
+
+                  <td data-label="Customer">{bill.billedTo?.name || "-"}</td>
+
+                  <td data-label="GSTIN">{bill.receiverGstin || "-"}</td>
+
+                  <td data-label="Date">
+                    {formatDate(bill.dateOfInvoice || bill.createdAt)}
+                  </td>
+
+                  <td data-label="Amount">
+                    {formatAmount(bill.totals?.grandTotal)}
+                  </td>
+
+                  <td data-label="Actions" className={styles.actions}>
                     <button
                       className={styles.viewBtn}
-                      onClick={() => navigate(`/admin/bill/createbill/${bill._id}`)}
+                      onClick={() =>
+                        navigate(`/admin/bill/createbill/${bill._id}`)
+                      }
                     >
                       Edit Bill
                     </button>
@@ -167,11 +179,8 @@ const Bill: React.FC = () => {
 
                     <button
                       type="button"
-                      className={styles.primary}
-                      style={{ backgroundColor: "green" }}
-                      onClick={() =>
-                        downloadBillPdf(bill._id, bill.billNo)
-                      }
+                      className="btn-success"
+                      onClick={() => downloadBillPdf(bill._id, bill.billNo)}
                     >
                       Download PDF
                     </button>

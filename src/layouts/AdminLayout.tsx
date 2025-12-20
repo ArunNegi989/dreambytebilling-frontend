@@ -22,7 +22,9 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const sidebarRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -32,37 +34,58 @@ const AdminLayout: React.FC = () => {
       ) {
         setMenuOpen(false);
       }
+
+      // Close sidebar when clicking outside on mobile
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node) &&
+        !(event.target as HTMLElement).closest(`.${styles.hamburger}`)
+      ) {
+        setSidebarOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close sidebar when route changes (mobile)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [navigate]);
+
   const handleLogout = () => {
-  // 1) Local storage clean
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-
-  // 2) Dropdown band karo (optional UX)
-  setMenuOpen(false);
-
-  // 3) Soft redirect via React Router
-  navigate("/login", { replace: true });
-
-  // 4) Extra safety: agar kabhi routing ka issue ho to hard reload
-  // (agar upar wali line se kaam ho raha ho to isko comment bhi rakh sakte ho)
-  // window.location.href = "/login";
-};
-
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setMenuOpen(false);
+    navigate("/login", { replace: true });
+  };
 
   const handleEditProfile = () => {
     navigate("/admin/profile");
     setMenuOpen(false);
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
   return (
     <div className={styles.layout}>
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div
+          className={styles.overlay}
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* ---------- SIDEBAR ---------- */}
-      <aside className={styles.sidebar}>
+      <aside
+        ref={sidebarRef}
+        className={`${styles.sidebar} ${
+          sidebarOpen ? styles.sidebarOpen : ""
+        }`}
+      >
         <div className={styles.logoSection}>
           <div className={styles.logoCircle}>DB</div>
           <div>
@@ -80,6 +103,7 @@ const AdminLayout: React.FC = () => {
                 ? `${styles.navItem} ${styles.navItemActive}`
                 : styles.navItem
             }
+            onClick={() => setSidebarOpen(false)}
           >
             <span className={styles.navIcon}>📊</span>
             <span>Dashboard</span>
@@ -92,10 +116,12 @@ const AdminLayout: React.FC = () => {
                 ? `${styles.navItem} ${styles.navItemActive}`
                 : styles.navItem
             }
+            onClick={() => setSidebarOpen(false)}
           >
             <span className={styles.navIcon}>🧾</span>
             <span>Invoices</span>
           </NavLink>
+
           <NavLink
             to="bill"
             className={({ isActive }) =>
@@ -103,27 +129,24 @@ const AdminLayout: React.FC = () => {
                 ? `${styles.navItem} ${styles.navItemActive}`
                 : styles.navItem
             }
+            onClick={() => setSidebarOpen(false)}
           >
             <span className={styles.navIcon}>🧾</span>
             <span>Invoices Without GST</span>
           </NavLink>
 
-          
-
-          
-           <NavLink
+          <NavLink
             to="quotation"
             className={({ isActive }) =>
               isActive
                 ? `${styles.navItem} ${styles.navItemActive}`
                 : styles.navItem
             }
+            onClick={() => setSidebarOpen(false)}
           >
             <span className={styles.navIcon}>📈</span>
-            <span>Quatations</span>
+            <span>Quotations</span>
           </NavLink>
-
-         
         </nav>
 
         <div className={styles.sidebarFooter}>
@@ -143,7 +166,20 @@ const AdminLayout: React.FC = () => {
       <div className={styles.main}>
         {/* TOPBAR */}
         <header className={styles.topbar}>
-          <div>
+          {/* Hamburger Menu */}
+          <button
+            className={`${styles.hamburger} ${
+              sidebarOpen ? styles.hamburgerActive : ""
+            }`}
+            onClick={toggleSidebar}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <div className={styles.topbarLeft}>
             <h1 className={styles.pageTitle}>Dashboard</h1>
             <p className={styles.pageSubtitle}>
               Welcome back, {user?.name || "Admin"} 👋
@@ -186,7 +222,7 @@ const AdminLayout: React.FC = () => {
           )}
         </header>
 
-        {/* YAHAN PE SAB PAGES LOAD HONGE */}
+        {/* CONTENT */}
         <main className={styles.content}>
           <Outlet />
         </main>

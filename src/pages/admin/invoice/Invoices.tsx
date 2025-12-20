@@ -133,7 +133,7 @@ const Invoices: React.FC = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>#</th>
+                <th>S no.</th>
                 <th>Invoice No</th>
                 <th>Customer</th>
                 <th>Receiver's GSTIN</th>
@@ -145,13 +145,23 @@ const Invoices: React.FC = () => {
             <tbody>
               {invoices.map((inv, idx) => (
                 <tr key={inv._id}>
-                  <td>{idx + 1}</td>
-                  <td>{inv.invoiceNo}</td>
-                  <td>{inv.billedTo?.name || "-"}</td>
-                  <td>{inv.receiverGstin || "-"}</td>
-                  <td>{formatDate(inv.dateOfInvoice || inv.createdAt)}</td>
-                  <td>{formatAmount(inv.totals?.grandTotal)}</td>
-                  <td className={styles.actions}>
+                  <td data-label="#"> {idx + 1} </td>
+
+                  <td data-label="Invoice No">{inv.invoiceNo}</td>
+
+                  <td data-label="Customer">{inv.billedTo?.name || "-"}</td>
+
+                  <td data-label="GSTIN">{inv.receiverGstin || "-"}</td>
+
+                  <td data-label="Date">
+                    {formatDate(inv.dateOfInvoice || inv.createdAt)}
+                  </td>
+
+                  <td data-label="Amount">
+                    {formatAmount(inv.totals?.grandTotal)}
+                  </td>
+
+                  <td data-label="Actions" className={styles.actions}>
                     <button
                       className={styles.viewBtn}
                       onClick={() => navigate(`/admin/invoices/${inv._id}`)}
@@ -166,10 +176,10 @@ const Invoices: React.FC = () => {
                     >
                       {deletingId === inv._id ? "Deleting..." : "Delete"}
                     </button>
+
                     <button
                       type="button"
-                      className={styles.primary}
-                      style={{ backgroundColor: "green" }}
+                      className="btn-success"
                       onClick={() => downloadInvoicePdf(inv._id, inv.invoiceNo)}
                     >
                       Download PDF
