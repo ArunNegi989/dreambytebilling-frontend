@@ -313,3 +313,21 @@
     width: 100%;
   }
 }
+
+/* ===== INVOICE PAGE BREAK FIX ===== */
+
+@media (max-width: 900px) {
+  .tableWrapper {
+    overflow-x: hidden;
+  }
+
+  .table td {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .actions button {
+    flex: unset;
+    width: auto;
+  }
+}
