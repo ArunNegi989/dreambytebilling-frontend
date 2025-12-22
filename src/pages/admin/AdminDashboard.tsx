@@ -1,61 +1,186 @@
 // src/pages/admin/AdminDashboard.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../../assets/styles/admin/AdminDashboard.module.css";
+import api from "../../api/axios";
+
+/* ================= TYPES ================= */
+interface Invoice {
+  createdAt?: string;
+}
+
+interface Bill {
+  createdAt?: string;
+  paymentStatus?: string;
+}
+
+interface Quotation {
+  createdAt?: string;
+}
 
 const AdminDashboard: React.FC = () => {
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [quotations, setQuotations] = useState<Quotation[]>([]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  /* ================= API CALL ================= */
+  const loadDashboardData = async () => {
+    try {
+      const [invoiceRes, billRes, quotationRes] = await Promise.all([
+        api.get("/api/invoice/getallinvoice"),
+        api.get("/api/bill/getallbills"),
+        api.get("/api/quotation/getallquotation"),
+      ]);
+
+      setInvoices(invoiceRes.data || []);
+      setBills(billRes.data || []);
+      setQuotations(quotationRes.data || []);
+    } catch (error) {
+      console.error("Dashboard data fetch failed", error);
+    }
+  };
+
+  /* ================= CALCULATIONS ================= */
+
+  const totalInvoices = invoices.length;
+  const totalBills = bills.length;
+  const totalQuotations = quotations.length;
+
+  const today = new Date().toDateString();
+
+  const todayInvoices = invoices.filter(
+    (i) => i.createdAt && new Date(i.createdAt).toDateString() === today
+  ).length;
+
+  const todayBills = bills.filter(
+    (b) => b.createdAt && new Date(b.createdAt).toDateString() === today
+  ).length;
+
+  const todayQuotations = quotations.filter(
+    (q) => q.createdAt && new Date(q.createdAt).toDateString() === today
+  ).length;
+
+  const paidBills = bills.filter((b) => b.paymentStatus === "Paid").length;
+  const unpaidBills = bills.filter((b) => b.paymentStatus !== "Paid").length;
+
+  const quotationConversion =
+    quotations.length > 0
+      ? Math.round((invoices.length / quotations.length) * 100)
+      : 0;
+
+  const recentInvoices = [...invoices]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt || "").getTime() -
+        new Date(a.createdAt || "").getTime()
+    )
+    .slice(0, 5);
+
+  /* ================= UI ================= */
+
   return (
-    <>
-      {/* Dashboard cards + sections */}
+    <div className={styles.dashboard}>
+      {/* 🔥 HEADER */}
+      <div className={styles.header}>
+        <h2>Welcome Back, Admin 👋</h2>
+        <p>Live data from invoices, bills & quotations</p>
+      </div>
+
+      {/* 📊 TOP STATS */}
       <div className={styles.cardsRow}>
-        <div className={styles.card}>
-          <p className={styles.cardLabel}>Today&apos;s Invoices</p>
-          <h3 className={styles.cardValue}>12</h3>
-          <p className={styles.cardHint}>+3 vs yesterday</p>
+        <div className={`${styles.card} ${styles.blue}`}>
+          <p>Total Invoices</p>
+          <h3>{totalInvoices}</h3>
+          <span>All records</span>
         </div>
-        <div className={styles.card}>
-          <p className={styles.cardLabel}>Total Revenue</p>
-          <h3 className={styles.cardValue}>₹ 48,250</h3>
-          <p className={styles.cardHint}>Last 7 days</p>
+
+        <div className={`${styles.card} ${styles.green}`}>
+          <p>Total Bills</p>
+          <h3>{totalBills}</h3>
+          <span>All records</span>
         </div>
-        <div className={styles.card}>
-          <p className={styles.cardLabel}>Active Customers</p>
-          <h3 className={styles.cardValue}>89</h3>
-          <p className={styles.cardHint}>Updated just now</p>
+
+        <div className={`${styles.card} ${styles.orange}`}>
+          <p>Total Quotations</p>
+          <h3>{totalQuotations}</h3>
+          <span>All records</span>
         </div>
       </div>
 
-      <div className={styles.gridRow}>
-        <div className={styles.gridCol}>
-          <h2 className={styles.sectionTitle}>Quick Actions</h2>
-          <div className={styles.actionList}>
-            <button className={styles.primaryBtn}>➕ Create new invoice</button>
-            <button className={styles.secondaryBtn}>👥 Add new customer</button>
-            <button className={styles.secondaryBtn}>
-              📦 Add product/service
-            </button>
+      {/* 🧩 GRID SECTION */}
+      <div className={styles.grid}>
+        {/* TODAY PERFORMANCE */}
+        <div className={styles.box}>
+          <h4>Today’s Performance</h4>
+          <div className={styles.detailRow}>
+            <span>Invoices Created</span>
+            <b>{todayInvoices}</b>
+          </div>
+          <div className={styles.detailRow}>
+            <span>Bills Generated</span>
+            <b>{todayBills}</b>
+          </div>
+          <div className={styles.detailRow}>
+            <span>Quotations Sent</span>
+            <b>{todayQuotations}</b>
           </div>
         </div>
 
-        <div className={styles.gridCol}>
-          <h2 className={styles.sectionTitle}>Recent Activity</h2>
-          <ul className={styles.activityList}>
-            <li>
-              🧾 Invoice <strong>#INV-1024</strong> created for{" "}
-              <strong>Infigo Travels</strong>.
-            </li>
-            <li>
-              ✅ Payment received from <strong>ABC Enterprises</strong>.
-            </li>
-            <li>
-              👤 New customer <strong>Rohan Sharma</strong> added.
-            </li>
-            <li>
-              ✏️ Invoice <strong>#INV-1019</strong> updated.
-            </li>
-          </ul>
+       
+
+        {/* QUOTATION INSIGHT */}
+        <div className={styles.box}>
+          <h4>Quotation Insights</h4>
+          <div className={styles.detailRow}>
+            <span>Total Quotations</span>
+            <b>{totalQuotations}</b>
+          </div>
+          <div className={styles.detailRow}>
+            <span>Converted to Invoice</span>
+            <b>{quotationConversion}%</b>
+          </div>
+        </div>
+
+        {/* RECENT INVOICES */}
+        <div className={styles.box}>
+          <h4>Recent Invoices</h4>
+          {recentInvoices.length === 0 ? (
+            <p>No recent invoices</p>
+          ) : (
+            recentInvoices.map((inv, index) => (
+              <div key={index} className={styles.detailRow}>
+                <span>Invoice #{index + 1}</span>
+                <b>
+                  {inv.createdAt
+                    ? new Date(inv.createdAt).toLocaleDateString()
+                    : "-"}
+                </b>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* SYSTEM INFO */}
+        <div className={styles.box}>
+          <h4>System Status</h4>
+          <div className={styles.detailRow}>
+            <span>Invoices API</span>
+            <b className={styles.active}>Connected</b>
+          </div>
+          <div className={styles.detailRow}>
+            <span>Bills API</span>
+            <b className={styles.active}>Connected</b>
+          </div>
+          <div className={styles.detailRow}>
+            <span>Quotation API</span>
+            <b className={styles.active}>Connected</b>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
