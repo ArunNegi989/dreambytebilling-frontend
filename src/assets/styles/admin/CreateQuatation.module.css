@@ -234,17 +234,30 @@
    MOBILE
 ================================ */
 @media (max-width: 768px) {
-  .row {
-    grid-template-columns: 1fr;
+
+  .container {
+    padding: 12px;
+    min-height: auto;
   }
 
   .header {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
   .headerBtns {
     flex-direction: column;
+    width: 100%;
+  }
+
+  .headerBtns button {
+    width: 100%;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .itemsHeader {
@@ -252,14 +265,27 @@
   }
 
   .itemRow {
-    grid-template-columns: 1fr;
-    padding: 14px;
-    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
     border: 1px solid #e5e7eb;
+  }
+
+  .itemRow button {
+    align-self: flex-end;
+  }
+
+  .total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 
   .bottomActions {
     flex-direction: column;
+    gap: 10px;
   }
 
   .bottomActions button {

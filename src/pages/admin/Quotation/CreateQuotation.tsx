@@ -31,60 +31,21 @@ const numberToWords = (num: number): string => {
 
   const a = [
     "",
-    "One",
-    "Two",
-    "Three",
-    "Four",
-    "Five",
-    "Six",
-    "Seven",
-    "Eight",
-    "Nine",
-    "Ten",
-    "Eleven",
-    "Twelve",
-    "Thirteen",
-    "Fourteen",
-    "Fifteen",
-    "Sixteen",
-    "Seventeen",
-    "Eighteen",
-    "Nineteen",
+    "One","Two","Three","Four","Five","Six","Seven","Eight","Nine",
+    "Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen",
+    "Sixteen","Seventeen","Eighteen","Nineteen",
   ];
-  const b = [
-    "",
-    "",
-    "Twenty",
-    "Thirty",
-    "Forty",
-    "Fifty",
-    "Sixty",
-    "Seventy",
-    "Eighty",
-    "Ninety",
-  ];
+  const b = ["", "", "Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
 
   const inWords = (n: number): string => {
     if (n < 20) return a[n];
     if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? " " + a[n % 10] : "");
     if (n < 1000)
-      return (
-        a[Math.floor(n / 100)] +
-        " Hundred" +
-        (n % 100 ? " " + inWords(n % 100) : "")
-      );
+      return a[Math.floor(n / 100)] + " Hundred" + (n % 100 ? " " + inWords(n % 100) : "");
     if (n < 100000)
-      return (
-        inWords(Math.floor(n / 1000)) +
-        " Thousand" +
-        (n % 1000 ? " " + inWords(n % 1000) : "")
-      );
+      return inWords(Math.floor(n / 1000)) + " Thousand" + (n % 1000 ? " " + inWords(n % 1000) : "");
     if (n < 10000000)
-      return (
-        inWords(Math.floor(n / 100000)) +
-        " Lakh" +
-        (n % 100000 ? " " + inWords(n % 100000) : "")
-      );
+      return inWords(Math.floor(n / 100000)) + " Lakh" + (n % 100000 ? " " + inWords(n % 100000) : "");
     return (
       inWords(Math.floor(n / 10000000)) +
       " Crore" +
@@ -128,18 +89,17 @@ export default function CreateQuotation() {
     (async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/api/quotation/getquotationbyid/${id}`);
-        const q = res.data;
+        const { data } = await api.get(`/api/quotation/getquotationbyid/${id}`);
 
-        setQuotationNo(q.quotationNo || "");
-        setQuotationDate(q.quotationDate?.slice(0, 10) || "");
-        setClientName(q.clientName || "");
-        setContactNumber(q.contactNumber || "");
-        setEmail(q.email || "");
-        setBillToAddress(q.billToAddress || "");
+        setQuotationNo(data.quotationNo || "");
+        setQuotationDate(data.quotationDate?.slice(0, 10) || "");
+        setClientName(data.clientName || "");
+        setContactNumber(data.contactNumber || "");
+        setEmail(data.email || "");
+        setBillToAddress(data.billToAddress || "");
         setItems(
-          q.items?.length
-            ? q.items.map((it: any) => ({
+          data.items?.length
+            ? data.items.map((it: any) => ({
                 id: crypto.randomUUID(),
                 service: it.service,
                 rate: it.rate,
@@ -155,17 +115,13 @@ export default function CreateQuotation() {
     })();
   }, [id]);
 
-  /* ---------- ITEM UPDATE (MOBILE SAFE) ---------- */
+  /* ---------- ITEMS ---------- */
   const updateItem = (idx: number, field: keyof Item, value: any) => {
     setItems((prev) =>
       prev.map((it, i) => {
         if (i !== idx) return it;
-
         const updated = { ...it, [field]: value };
-
-        const rateNum = Number(updated.rate);
-        updated.amount = !isNaN(rateNum) ? rateNum : 0;
-
+        updated.amount = !isNaN(Number(updated.rate)) ? Number(updated.rate) : 0;
         return updated;
       })
     );
@@ -184,20 +140,11 @@ export default function CreateQuotation() {
       return;
     }
 
-    const validItems = items.filter(
-      (i) => i.service && Number(i.rate) > 0
-    );
-
+    const validItems = items.filter((i) => i.service && Number(i.rate) > 0);
     if (!validItems.length) {
       toast.warning("Please add at least one service");
       return;
     }
-
-    const cleanedItems = validItems.map(({ service, rate, amount }) => ({
-      service,
-      rate: Number(rate),
-      amount,
-    }));
 
     const payload = {
       quotationNo,
@@ -206,24 +153,23 @@ export default function CreateQuotation() {
       contactNumber,
       email,
       billToAddress,
-      items: cleanedItems,
+      items: validItems.map(({ service, rate, amount }) => ({
+        service,
+        rate: Number(rate),
+        amount,
+      })),
       totals: { totalAmount },
     };
 
     try {
       setSaving(true);
+      id
+        ? await api.put(`/api/quotation/updatequtation/${id}`, payload)
+        : await api.post("/api/quotation/createquotation", payload);
 
-      if (id) {
-        await api.put(`/api/quotation/updatequtation/${id}`, payload);
-        toast.success("Quotation updated successfully");
-      } else {
-        await api.post("/api/quotation/createquotation", payload);
-        toast.success("Quotation created successfully");
-      }
-
+      toast.success(id ? "Quotation updated" : "Quotation created");
       navigate("/admin/quotation");
-    } catch (err) {
-      console.error("Quotation save error:", err);
+    } catch {
       toast.error("Failed to save quotation");
     } finally {
       setSaving(false);
@@ -232,7 +178,6 @@ export default function CreateQuotation() {
 
   if (loading) return <div>Loading...</div>;
 
-  /* ---------- UI ---------- */
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -247,67 +192,28 @@ export default function CreateQuotation() {
 
       <section className={styles.card}>
         <div className={styles.row}>
-          <input
-            placeholder="Quotation No"
-            value={quotationNo}
-            onChange={(e) => setQuotationNo(e.target.value)}
-          />
-          <input
-            placeholder="Client Name"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-          />
-          <input
-            placeholder="Contact Number"
-            value={contactNumber}
-            onChange={(e) => setContactNumber(e.target.value)}
-          />
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="date"
-            value={quotationDate}
-            onChange={(e) => setQuotationDate(e.target.value)}
-          />
+          <input placeholder="Quotation No" value={quotationNo} onChange={(e) => setQuotationNo(e.target.value)} />
+          <input placeholder="Client Name" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+          <input placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} />
+          <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input type="date" value={quotationDate} onChange={(e) => setQuotationDate(e.target.value)} />
         </div>
       </section>
 
       <section className={styles.card}>
-        <textarea
-          rows={4}
-          placeholder="Billing Address"
-          value={billToAddress}
-          onChange={(e) => setBillToAddress(e.target.value)}
-        />
+        <textarea rows={4} placeholder="Billing Address" value={billToAddress} onChange={(e) => setBillToAddress(e.target.value)} />
       </section>
 
       <section className={styles.card}>
         <div className={styles.itemsHeader}>
-          <span>#</span>
-          <span>Service</span>
-          <span>Rate</span>
-          <span>Amount</span>
-          <span />
+          <span>#</span><span>Service</span><span>Rate</span><span>Amount</span><span />
         </div>
 
         {items.map((it, idx) => (
           <div key={it.id} className={styles.itemRow}>
             <span>{idx + 1}</span>
-            <input
-              value={it.service}
-              placeholder="Service"
-              onChange={(e) => updateItem(idx, "service", e.target.value)}
-            />
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="Rate"
-              value={it.rate}
-              onChange={(e) => updateItem(idx, "rate", e.target.value)}
-            />
+            <input value={it.service} placeholder="Service" onChange={(e) => updateItem(idx, "service", e.target.value)} />
+            <input type="number" placeholder="Rate" value={it.rate} onChange={(e) => updateItem(idx, "rate", e.target.value)} />
             <span>{formatCurrency(it.amount)}</span>
             <button onClick={() => removeItem(idx)}>✕</button>
           </div>
@@ -317,15 +223,11 @@ export default function CreateQuotation() {
       </section>
 
       <section className={styles.card}>
-        <p>
-          <strong>Rupees in words:</strong> {rupeesInWords}
-        </p>
-
+        <p><strong>Rupees in words:</strong> {rupeesInWords}</p>
         <div className={styles.total}>
           <span>Grand Total</span>
           <span>{formatCurrency(totalAmount)}</span>
         </div>
-
         <div className={styles.bottomActions}>
           <button onClick={() => navigate(-1)}>Back</button>
           <button onClick={saveQuotation} disabled={saving}>
