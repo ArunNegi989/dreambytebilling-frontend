@@ -1,141 +1,167 @@
-/* src/pages/auth/styles/Register.module.css */
-/* Basic styles modeled after your Login.module.css structure.
-   Tweak spacing/colors/font to match your app. */
-
+/* PAGE */
 .page {
   min-height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  background: #f6f8fb;
-  padding: 24px;
+  align-items: center;
+  background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+  padding: 20px;
 }
 
+/* CARD */
 .card {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1100px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
   display: flex;
-  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(18, 25, 35, 0.08);
-  background: #ffffff;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
 }
 
+/* LEFT PANEL */
 .leftPanel {
   flex: 1;
-  padding: 40px;
-  background: linear-gradient(180deg, #f7fbff, #ffffff);
-}
-
-.brandBadge {
-  display: inline-block;
-  background: #eef6ff;
-  color: #1652f0;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 700;
-  margin-bottom: 18px;
-}
-
-.leftTitle {
-  font-size: 22px;
-  margin: 0 0 8px;
-}
-
-.leftText {
-  margin: 0 0 18px;
-  color: #5b6b7a;
-}
-
-.features {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  color: #334155;
-}
-
-.features li {
-  margin-bottom: 10px;
-}
-
-.rightPanel {
-  width: 420px;
-  padding: 36px;
-  background: #fff;
-  border-left: 1px solid #eef2f6;
-}
-
-.title {
-  margin: 0 0 6px;
-  font-size: 20px;
-}
-
-.subtitle {
-  margin: 0 0 18px;
-  color: #64748b;
-  font-size: 14px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-}
-
-.inputGroup {
-  margin-bottom: 14px;
-  display: flex;
-  flex-direction: column;
-}
-
-.inputGroup label {
-  font-size: 13px;
-  margin-bottom: 6px;
-  color: #334155;
-}
-
-.input {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #e6eef6;
-  outline: none;
-  font-size: 14px;
-}
-
-.passwordWrapper {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.togglePassword {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  color: #1652f0;
-  padding: 6px 8px;
-}
-
-.submitBtn {
-  margin-top: 8px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-  background: #1652f0;
+  padding: 60px;
+  background: linear-gradient(160deg, #1e3a8a, #2563eb);
   color: #fff;
 }
 
-.switch {
-  margin-top: 12px;
-  font-size: 13px;
-  color: #64748b;
+.brand {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 12px;
 }
 
-.link {
-  color: #1652f0;
+.tagline {
+  font-size: 15px;
+  opacity: 0.9;
+  margin-bottom: 30px;
+}
+
+.benefits {
+  list-style: none;
+  padding: 0;
+}
+
+.benefits li {
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+/* RIGHT PANEL */
+.rightPanel {
+  width: 420px;
+  padding: 50px 40px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+/* FORM */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* PASSWORD */
+.passwordBox {
+  position: relative;
+}
+
+.eye {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #2563eb;
+}
+
+/* BUTTON */
+.submitBtn {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submitBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* SWITCH */
+.switch {
+  margin-top: 18px;
+  font-size: 13px;
+  color: #64748b;
+  text-align: center;
+}
+
+.switch a {
+  color: #2563eb;
   font-weight: 600;
   text-decoration: none;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .card {
+    flex-direction: column;
+  }
+
+  .leftPanel {
+    display: none;
+  }
+
+  .rightPanel {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .rightPanel {
+    padding: 30px 20px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
 }

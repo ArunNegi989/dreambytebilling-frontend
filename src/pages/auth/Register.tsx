@@ -7,19 +7,6 @@ import { useNavigate, Link } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-interface RegisterResponseUser {
-  id: string;
-  name: string;
-  email: string;
-  role?: "admin" | "user";
-}
-
-interface RegisterResponse {
-  token?: string;
-  user?: RegisterResponseUser;
-  message?: string;
-}
-
 const Register: React.FC = () => {
   const navigate = useNavigate();
 
@@ -52,34 +39,16 @@ const Register: React.FC = () => {
 
     try {
       setLoading(true);
-      const payload = { name, email, password };
+      const res = await axios.post(`${API_BASE_URL}/api/auth/register`, {
+        name,
+        email,
+        password,
+      });
 
-      // endpoint assumed: /api/auth/register (adjust if your backend uses another route)
-      const res = await axios.post<RegisterResponse>(
-        `${API_BASE_URL}/api/auth/register`,
-        payload
-      );
-
-      // If backend returns a token and user, you can store them.
-      if (res.data?.token && res.data?.user) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        toast.success("Account created & logged in");
-        // redirect to admin/dashboard depending on role
-        const role = res.data.user.role || "user";
-        if (role === "admin") navigate("/admin");
-        else navigate("/admin"); // change to user dashboard if you add it later
-        return;
-      }
-
-      // else success without token
-      toast.success(res.data?.message || "Account created. Please login.");
+      toast.success("Account created successfully");
       navigate("/auth/login");
     } catch (err: any) {
-      console.error("Register error:", err);
-      const message =
-        err?.response?.data?.message || "Registration failed. Try again.";
-      toast.error(message);
+      toast.error(err?.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -88,96 +57,78 @@ const Register: React.FC = () => {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
+        {/* LEFT */}
         <div className={styles.leftPanel}>
-          <div className={styles.brandBadge}>Billing Software</div>
-          <h1 className={styles.leftTitle}>Create your account</h1>
-          <p className={styles.leftText}>
-            Create an admin account to manage invoices, customers & payments.
+          <h1 className={styles.brand}>BillingPro</h1>
+          <p className={styles.tagline}>
+            Smart billing & invoice management platform
           </p>
 
-          <ul className={styles.features}>
-            <li>⚡ Quick setup</li>
-            <li>📊 Easy invoice management</li>
-            <li>🔐 Role-based access</li>
+          <ul className={styles.benefits}>
+            <li>✔ Create invoices in seconds</li>
+            <li>✔ Track payments easily</li>
+            <li>✔ Secure admin dashboard</li>
           </ul>
         </div>
 
+        {/* RIGHT */}
         <div className={styles.rightPanel}>
-          <h2 className={styles.title}>Register</h2>
-          <p className={styles.subtitle}>Create a new admin account</p>
+          <h2 className={styles.title}>Create Account</h2>
+          <p className={styles.subtitle}>
+            Register to access admin dashboard
+          </p>
 
           <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <label>Full name</label>
+            <input
+              className={styles.input}
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+
+            <input
+              className={styles.input}
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <div className={styles.passwordBox}>
               <input
-                type="text"
-                placeholder="Your name"
                 className={styles.input}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label>Email</label>
-              <input
-                type="email"
-                placeholder="admin@example.com"
-                className={styles.input}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label>Password</label>
-              <div className={styles.passwordWrapper}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className={styles.input}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  className={styles.togglePassword}
-                  onClick={() => setShowPassword((s) => !s)}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label>Confirm Password</label>
-              <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Confirm password"
-                className={styles.input}
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                autoComplete="new-password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
+              <span
+                className={styles.eye}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </span>
             </div>
+
+            <input
+              className={styles.input}
+              type={showPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
 
             <button
-              type="submit"
               className={styles.submitBtn}
               disabled={loading}
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? "Creating..." : "Create Account"}
             </button>
           </form>
 
           <p className={styles.switch}>
-            Already have an account?{" "}
-            <Link to="/auth/login" className={styles.link}>
-              Login
-            </Link>
+            Already have an account?
+            <Link to="/auth/login"> Login</Link>
           </p>
         </div>
       </div>
