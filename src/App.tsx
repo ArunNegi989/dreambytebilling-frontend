@@ -7,26 +7,33 @@ import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+
+// INVOICE
 import Invoices from "./pages/admin/invoice/Invoices";
 import CreateInvoice from "./pages/admin/invoice/CreateInvoice";
+import InvoiceView from "./pages/admin/invoice/InvoiceView";
+
+// AUTH
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import InvoiceView from "./pages/admin/invoice/InvoiceView";
+
+// QUOTATION
 import QuotationForm from "./pages/admin/Quotation/QuotationForm";
 import CreateQuotation from "./pages/admin/Quotation/CreateQuotation";
+
+// BILL (Without GST)
 import Bill from "./pages/admin/invoicewithoutgst/Bill";
 import CreateBill from "./pages/admin/invoicewithoutgst/CreateBill";
 
 function AppRoutes() {
   return (
     <>
-      {/* ROUTES */}
       <Routes>
-        {/* LOGIN ROUTE */}
+        {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
 
-        {/* ADMIN ROUTES */}
+        {/* ================= ADMIN ================= */}
         <Route
           path="/admin"
           element={
@@ -35,24 +42,30 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
+          {/* DASHBOARD */}
           <Route index element={<AdminDashboard />} />
+
+          {/* INVOICES */}
           <Route path="invoices" element={<Invoices />} />
           <Route path="invoices/create" element={<CreateInvoice />} />
           <Route path="invoices/:id" element={<InvoiceView />} />
-          <Route path="quotation" element={<QuotationForm />} />
-          <Route path="/admin/quotation/create" element={<CreateQuotation />} />
-          <Route path="/admin/quotation/edit/:id" element={<CreateQuotation />} />
-          <Route path="bill" element={<Bill />} />
-          <Route path="/admin/bill/createbill" element={<CreateBill />} />
-          <Route path="/admin/bill/createbill/:id" element={<CreateBill />} />
 
+          {/* QUOTATIONS */}
+          <Route path="quotation" element={<QuotationForm />} />
+          <Route path="quotation/create" element={<CreateQuotation />} />
+          <Route path="quotation/edit/:id" element={<CreateQuotation />} />
+
+          {/* BILLS */}
+          <Route path="bill" element={<Bill />} />
+          <Route path="bill/createbill" element={<CreateBill />} />
+          <Route path="bill/createbill/:id" element={<CreateBill />} />
         </Route>
 
-        {/* fallback */}
+        {/* ================= FALLBACK ================= */}
         <Route path="*" element={<Login />} />
       </Routes>
 
-      {/* TOAST CONTAINER (GLOBAL) */}
+      {/* ================= TOAST ================= */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

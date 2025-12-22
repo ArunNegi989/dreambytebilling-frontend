@@ -10,7 +10,7 @@ interface Bill {
   billedTo?: any;
   receiverGstin?: any;
   dateOfInvoice?: string;
-  totals?: { grandTotal?: number };
+  totals?: { subtotal?: number };
   createdAt?: string;
 }
 
@@ -156,7 +156,7 @@ const Bill: React.FC = () => {
                   </td>
 
                   <td data-label="Amount">
-                    {formatAmount(bill.totals?.grandTotal)}
+                    {formatAmount(bill.totals?.subtotal)}
                   </td>
 
                   <td data-label="Actions" className={styles.actions}>

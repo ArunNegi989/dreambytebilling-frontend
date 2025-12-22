@@ -1,14 +1,10 @@
-// src/pages/auth/Login.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../../assets/styles/auth/Login.module.css";
-import axios, { AxiosError } from "axios";
+import api from "../../api/axios";
+import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { isTokenValid } from "../../utils/auth";
-
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 interface LoginResponseUser {
   id: string;
@@ -31,6 +27,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  /* ================= LOGIN HANDLER ================= */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -42,8 +39,9 @@ const Login: React.FC = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post<LoginResponse>(
-        `${API_BASE_URL}/api/auth/login`,
+      // ✅ SINGLE axios instance (env based)
+      const res = await api.post<LoginResponse>(
+        "/api/auth/login",
         { email, password },
         { timeout: 10000 }
       );
@@ -61,45 +59,32 @@ const Login: React.FC = () => {
 
       toast.success(res.data.message || "Login successful");
 
-      // Redirect based on role (you currently redirect admin to /admin)
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        // update this later if you add a user panel
-        navigate("/admin");
-      }
+      navigate("/admin");
     } catch (err: unknown) {
-      // Better error handling and clearer messages
       const error = err as AxiosError<any>;
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-        const serverMsg = error.response?.data?.message;
+      const status = error.response?.status;
+      const serverMsg = error.response?.data?.message;
 
-        if (status === 401) {
-          // invalid credentials (wrong email or password)
-          toast.error(serverMsg || "Invalid credentials — check email or password");
-        } else if (status === 400) {
-          toast.error(serverMsg || "Bad request");
-        } else if (status === 0 || !error.response) {
-          toast.error("Network error — unable to reach server");
-        } else {
-          toast.error(serverMsg || "Login failed. Please try again.");
-        }
+      if (!error.response) {
+        toast.error("Network error — unable to reach server");
+      } else if (status === 401) {
+        toast.error(serverMsg || "Invalid credentials");
+      } else if (status === 400) {
+        toast.error(serverMsg || "Bad request");
       } else {
-        // Non-Axios error
-        console.error(err);
-        toast.error("An unexpected error occurred");
+        toast.error(serverMsg || "Login failed. Please try again.");
       }
     } finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
-  if (isTokenValid()) {
-    navigate("/admin");
-  }
-}, []);
 
+  /* ================= AUTO REDIRECT ================= */
+  useEffect(() => {
+    if (isTokenValid()) {
+      navigate("/admin");
+    }
+  }, [navigate]);
 
   return (
     <div className={styles.page}>
@@ -119,7 +104,7 @@ const Login: React.FC = () => {
           </ul>
         </div>
 
-        {/* RIGHT PANEL - LOGIN FORM */}
+        {/* RIGHT PANEL */}
         <div className={styles.rightPanel}>
           <h2 className={styles.title}>Welcome back 👋</h2>
           <p className={styles.subtitle}>Login to your admin account</p>

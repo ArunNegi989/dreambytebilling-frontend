@@ -112,6 +112,7 @@ export default function CreateQuotation() {
 
   const [items, setItems] = useState<Item[]>([emptyItem()]);
 
+  /* ---------- TOTAL ---------- */
   const totalAmount = useMemo(
     () => items.reduce((sum, i) => sum + Number(i.amount || 0), 0),
     [items]
@@ -136,7 +137,16 @@ export default function CreateQuotation() {
         setContactNumber(q.contactNumber || "");
         setEmail(q.email || "");
         setBillToAddress(q.billToAddress || "");
-        setItems(q.items?.length ? q.items : [emptyItem()]);
+        setItems(
+          q.items?.length
+            ? q.items.map((it: any) => ({
+                id: crypto.randomUUID(),
+                service: it.service,
+                rate: it.rate,
+                amount: it.amount,
+              }))
+            : [emptyItem()]
+        );
       } catch {
         toast.error("Failed to load quotation");
       } finally {
@@ -145,13 +155,18 @@ export default function CreateQuotation() {
     })();
   }, [id]);
 
-  /* ---------- ITEM HANDLERS ---------- */
+  /* ---------- ITEM UPDATE (MOBILE SAFE) ---------- */
   const updateItem = (idx: number, field: keyof Item, value: any) => {
     setItems((prev) =>
       prev.map((it, i) => {
         if (i !== idx) return it;
-        const rate = field === "rate" ? Number(value) : Number(it.rate);
-        return { ...it, [field]: value, amount: rate };
+
+        const updated = { ...it, [field]: value };
+
+        const rateNum = Number(updated.rate);
+        updated.amount = !isNaN(rateNum) ? rateNum : 0;
+
+        return updated;
       })
     );
   };
@@ -162,31 +177,41 @@ export default function CreateQuotation() {
 
   /* ---------- SAVE ---------- */
   const saveQuotation = async () => {
+    if (saving) return;
+
     if (!quotationNo || !clientName || !billToAddress) {
       toast.warning("Please fill required fields");
       return;
     }
 
-    const validItems = items.filter((i) => i.service && Number(i.rate) > 0);
+    const validItems = items.filter(
+      (i) => i.service && Number(i.rate) > 0
+    );
 
     if (!validItems.length) {
       toast.warning("Please add at least one service");
       return;
     }
 
+    const cleanedItems = validItems.map(({ service, rate, amount }) => ({
+      service,
+      rate: Number(rate),
+      amount,
+    }));
+
+    const payload = {
+      quotationNo,
+      quotationDate,
+      clientName,
+      contactNumber,
+      email,
+      billToAddress,
+      items: cleanedItems,
+      totals: { totalAmount },
+    };
+
     try {
       setSaving(true);
-
-      const payload = {
-        quotationNo,
-        quotationDate,
-        clientName,
-        contactNumber,
-        email,
-        billToAddress,
-        items: validItems,
-        totals: { totalAmount },
-      };
 
       if (id) {
         await api.put(`/api/quotation/updatequtation/${id}`, payload);
@@ -197,7 +222,8 @@ export default function CreateQuotation() {
       }
 
       navigate("/admin/quotation");
-    } catch {
+    } catch (err) {
+      console.error("Quotation save error:", err);
       toast.error("Failed to save quotation");
     } finally {
       setSaving(false);
@@ -277,6 +303,7 @@ export default function CreateQuotation() {
             />
             <input
               type="number"
+              inputMode="numeric"
               placeholder="Rate"
               value={it.rate}
               onChange={(e) => updateItem(idx, "rate", e.target.value)}
