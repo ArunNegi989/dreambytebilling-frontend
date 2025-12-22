@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ReactPaginate from "react-paginate";
 import api from "../../../api/axios";
 import styles from "../../../assets/styles/admin/QuotationForm.module.css";
 
@@ -22,6 +23,8 @@ const formatCurrency = (n = 0) =>
     maximumFractionDigits: 2,
   })}`;
 
+const ITEMS_PER_PAGE = 10;
+
 /* ---------------- COMPONENT ---------------- */
 export default function QuotationList() {
   const navigate = useNavigate();
@@ -30,6 +33,7 @@ export default function QuotationList() {
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0); // react-paginate is 0-based
 
   /* ---------- FETCH ---------- */
   const fetchQuotations = async () => {
@@ -44,7 +48,21 @@ export default function QuotationList() {
     }
   };
 
-  /* ---------- DOWNLOAD PDF ---------- */
+  useEffect(() => {
+    fetchQuotations();
+  }, []);
+
+  /* ---------- PAGINATION ---------- */
+  const pageCount = Math.ceil(quotations.length / ITEMS_PER_PAGE);
+
+  const offset = currentPage * ITEMS_PER_PAGE;
+  const currentItems = quotations.slice(offset, offset + ITEMS_PER_PAGE);
+
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected);
+  };
+
+  /* ---------- DOWNLOAD ---------- */
   const downloadPdf = async (id: string, quotationNo: string) => {
     try {
       setDownloadingId(id);
@@ -75,17 +93,13 @@ export default function QuotationList() {
       setDeletingId(id);
       await api.delete(`/api/quotation/deletequitation/${id}`);
       setQuotations((prev) => prev.filter((q) => q._id !== id));
-      toast.success("Quotation deleted successfully");
+      toast.success("Quotation deleted");
     } catch {
       toast.error("Failed to delete quotation");
     } finally {
       setDeletingId(null);
     }
   };
-
-  useEffect(() => {
-    fetchQuotations();
-  }, []);
 
   if (loading) return <div className={styles.loading}>Loading...</div>;
 
@@ -117,12 +131,14 @@ export default function QuotationList() {
           <span>Actions</span>
         </div>
 
-        {quotations.length === 0 ? (
+        {currentItems.length === 0 ? (
           <div className={styles.empty}>No quotations found</div>
         ) : (
-          quotations.map((q, index) => (
+          currentItems.map((q, index) => (
             <div key={q._id} className={styles.tableRow}>
-              <div data-label="S.N.">{index + 1}</div>
+              <div data-label="S.N.">
+                {offset + index + 1}
+              </div>
 
               <div data-label="Quotation No" className={styles.bold}>
                 {q.quotationNo}
@@ -161,13 +177,33 @@ export default function QuotationList() {
                   disabled={downloadingId === q._id}
                   onClick={() => downloadPdf(q._id, q.quotationNo)}
                 >
-                  {downloadingId === q._id ? "Downloading..." : "Download PDF"}
+                  {downloadingId === q._id
+                    ? "Downloading..."
+                    : "Download PDF"}
                 </button>
               </div>
             </div>
           ))
         )}
       </section>
+
+      {/* ---------- PAGINATION ---------- */}
+      {pageCount > 1 && (
+        <ReactPaginate
+          previousLabel="← Prev"
+          nextLabel="Next →"
+          breakLabel="..."
+          pageCount={pageCount}
+          onPageChange={handlePageChange}
+          containerClassName={styles.pagination}
+          pageClassName={styles.pageItem}
+          pageLinkClassName={styles.pageLink}
+          activeClassName={styles.activePage}
+          previousClassName={styles.pageItem}
+          nextClassName={styles.pageItem}
+          disabledClassName={styles.disabled}
+        />
+      )}
     </div>
   );
 }

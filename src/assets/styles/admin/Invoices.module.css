@@ -11,6 +11,10 @@
   display: flex;
   gap: 20px;
 }
+.downloadBtn{
+  color: #e0edff;
+  background-color: #217a0d;
+}
 
 /* ================= HEADER ================= */
 
@@ -329,5 +333,64 @@
   .actions button {
     flex: unset;
     width: auto;
+  }
+}
+/* ---------- PAGINATION ---------- */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  list-style: none;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.pageItem {
+  border-radius: 8px;
+}
+
+.pageLink {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pageLink:hover {
+  background: #f3f4f6;
+}
+
+.activePage .pageLink {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+}
+
+.disabled .pageLink {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 768px) {
+  .pageLink {
+    min-width: 32px;
+    height: 32px;
+    font-size: 13px;
   }
 }

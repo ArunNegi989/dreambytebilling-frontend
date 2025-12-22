@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ReactPaginate from "react-paginate";
 import styles from "../../../assets/styles/admin/Invoices.module.css";
 import api from "../../../api/axios";
 
@@ -14,10 +15,13 @@ interface Bill {
   createdAt?: string;
 }
 
+const ITEMS_PER_PAGE = 10;
+
+/* ---------- HELPERS ---------- */
 const formatDate = (d?: string) => {
   if (!d) return "-";
   try {
-    return new Date(d).toLocaleDateString();
+    return new Date(d).toLocaleDateString("en-GB");
   } catch {
     return d;
   }
@@ -33,12 +37,14 @@ const formatAmount = (n?: number) => {
 
 const Bill: React.FC = () => {
   const navigate = useNavigate();
+
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0); // react-paginate = 0 based
 
-  /* ---------------- FETCH BILLS ---------------- */
+  /* ---------- FETCH ---------- */
   const fetchBills = async () => {
     try {
       setLoading(true);
@@ -46,7 +52,6 @@ const Bill: React.FC = () => {
       const resp = await api.get("/api/bill/getallbills");
       setBills(resp.data || []);
     } catch (err: any) {
-      console.error("Failed to fetch bills", err);
       const msg =
         err?.response?.data?.error || err?.message || "Failed to load bills";
       setError(msg);
@@ -56,24 +61,23 @@ const Bill: React.FC = () => {
     }
   };
 
-  /* ---------------- DELETE BILL ---------------- */
+  /* ---------- DELETE ---------- */
   const handleDelete = async (id: string) => {
     try {
       setDeletingId(id);
       await api.delete(`/api/bill/deletebill/${id}`);
-      setBills((prev) => prev.filter((bill) => bill._id !== id));
-      toast.success("Bill deleted successfully");
+      setBills((prev) => prev.filter((b) => b._id !== id));
+      toast.success("Bill deleted");
     } catch (err: any) {
-      console.error("Delete failed", err);
       toast.error(
-        err?.response?.data?.error || err?.message || "Failed to delete bill"
+        err?.response?.data?.error || err?.message || "Delete failed"
       );
     } finally {
       setDeletingId(null);
     }
   };
 
-  /* ---------------- DOWNLOAD PDF ---------------- */
+  /* ---------- DOWNLOAD ---------- */
   const downloadBillPdf = async (billId: string, billNo?: string) => {
     try {
       const resp = await api.get(`/api/bill/${billId}/pdf`, {
@@ -86,13 +90,10 @@ const Bill: React.FC = () => {
       const a = document.createElement("a");
       a.href = url;
       a.download = `bill-${billNo || billId}.pdf`;
-      document.body.appendChild(a);
       a.click();
-      a.remove();
 
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Failed to download PDF");
     }
   };
@@ -101,8 +102,14 @@ const Bill: React.FC = () => {
     fetchBills();
   }, []);
 
+  /* ---------- PAGINATION ---------- */
+  const pageCount = Math.ceil(bills.length / ITEMS_PER_PAGE);
+  const offset = currentPage * ITEMS_PER_PAGE;
+  const currentBills = bills.slice(offset, offset + ITEMS_PER_PAGE);
+
   return (
     <div className={styles.wrapper}>
+      {/* ---------- HEADER ---------- */}
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Bills</h1>
@@ -110,6 +117,7 @@ const Bill: React.FC = () => {
             View, manage and generate all your bills here.
           </p>
         </div>
+
         <button
           className={styles.createBtn}
           onClick={() => navigate("/admin/bill/createbill")}
@@ -118,38 +126,44 @@ const Bill: React.FC = () => {
         </button>
       </div>
 
+      {/* ---------- TABLE ---------- */}
       <div className={styles.card}>
         {loading ? (
           <div>Loading bills…</div>
         ) : error ? (
           <div className={styles.empty}>Error: {error}</div>
-        ) : bills.length === 0 ? (
-          <div className={styles.empty}>
-            No bills yet. Click Create to add one.
-          </div>
+        ) : currentBills.length === 0 ? (
+          <div className={styles.empty}>No bills found</div>
         ) : (
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>S no.</th>
+                <th>S No.</th>
                 <th>Bill No</th>
                 <th>Customer</th>
-                <th>Receiver's GSTIN</th>
+                <th>GSTIN</th>
                 <th>Date</th>
                 <th>Amount</th>
                 <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
-              {bills.map((bill, idx) => (
+              {currentBills.map((bill, idx) => (
                 <tr key={bill._id}>
-                  <td data-label="#">{idx + 1}</td>
+                  <td data-label="#">
+                    {offset + idx + 1}
+                  </td>
 
                   <td data-label="Bill No">{bill.billNo}</td>
 
-                  <td data-label="Customer">{bill.billedTo?.name || "-"}</td>
+                  <td data-label="Customer">
+                    {bill.billedTo?.name || "-"}
+                  </td>
 
-                  <td data-label="GSTIN">{bill.receiverGstin || "-"}</td>
+                  <td data-label="GSTIN">
+                    {bill.receiverGstin || "-"}
+                  </td>
 
                   <td data-label="Date">
                     {formatDate(bill.dateOfInvoice || bill.createdAt)}
@@ -178,9 +192,10 @@ const Bill: React.FC = () => {
                     </button>
 
                     <button
-                      type="button"
-                      className="btn-success"
-                      onClick={() => downloadBillPdf(bill._id, bill.billNo)}
+                      className={styles.downloadBtn}
+                      onClick={() =>
+                        downloadBillPdf(bill._id, bill.billNo)
+                      }
                     >
                       Download PDF
                     </button>
@@ -191,6 +206,24 @@ const Bill: React.FC = () => {
           </table>
         )}
       </div>
+
+      {/* ---------- PAGINATION ---------- */}
+      {pageCount > 1 && (
+        <ReactPaginate
+          previousLabel="← Prev"
+          nextLabel="Next →"
+          breakLabel="..."
+          pageCount={pageCount}
+          onPageChange={({ selected }) => setCurrentPage(selected)}
+          containerClassName={styles.pagination}
+          pageClassName={styles.pageItem}
+          pageLinkClassName={styles.pageLink}
+          activeClassName={styles.activePage}
+          previousClassName={styles.pageItem}
+          nextClassName={styles.pageItem}
+          disabledClassName={styles.disabled}
+        />
+      )}
     </div>
   );
 };
