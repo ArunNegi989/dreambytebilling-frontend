@@ -11,7 +11,6 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 // INVOICE
 import Invoices from "./pages/admin/invoice/Invoices";
 import CreateInvoice from "./pages/admin/invoice/CreateInvoice";
-import InvoiceView from "./pages/admin/invoice/InvoiceView";
 
 // AUTH
 import Login from "./pages/auth/Login";
@@ -48,7 +47,7 @@ function AppRoutes() {
           {/* INVOICES */}
           <Route path="invoices" element={<Invoices />} />
           <Route path="invoices/create" element={<CreateInvoice />} />
-          <Route path="invoices/:id" element={<InvoiceView />} />
+          <Route path="invoices/edit/:id" element={<CreateInvoice />} />
 
           {/* QUOTATIONS */}
           <Route path="quotation" element={<QuotationForm />} />

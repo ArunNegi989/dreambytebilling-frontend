@@ -1,6 +1,6 @@
 // src/pages/admin/CreateInvoice.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../api/axios";
 import styles from "../../../assets/styles/admin/CreateInvoice.module.css";
 
@@ -185,6 +185,8 @@ const CreateInvoice: React.FC = () => {
 
   const [saving, setSaving] = useState(false);
   const [topError, setTopError] = useState<string | null>(null);
+  const { id } = useParams(); // invoice id
+  const isEdit = Boolean(id); // true when editing
 
   useEffect(() => {
     if (sameAsBilling) {
@@ -193,17 +195,67 @@ const CreateInvoice: React.FC = () => {
     }
   }, [sameAsBilling, billedToName, billedToAddress]);
   useEffect(() => {
+    if (isEdit) return; // ❌ don't generate new number on edit
+
     const fetchInvoiceNo = async () => {
       try {
         const res = await api.get("/api/invoice/next-invoice-number");
         setInvoiceNo(res.data.invoiceNo);
-      } catch (err) {
+      } catch {
         console.error("Failed to fetch invoice number");
       }
     };
 
     fetchInvoiceNo();
-  }, []);
+  }, [isEdit]);
+  useEffect(() => {
+    if (!isEdit) return;
+
+    const fetchInvoice = async () => {
+      try {
+        const res = await api.get(`/api/invoice/${id}`);
+        const inv = res.data;
+
+        /* HEADER */
+        setPanNo(inv.header?.panNo || panNo);
+        setSupplierGstin(inv.header?.supplierGstin || supplierGstin);
+        setCategory(inv.header?.category || category);
+        setOfficeEmail(inv.header?.office?.officeEmail || officeEmail);
+        setPersonalPhone(inv.header?.office?.personalPhone || personalPhone);
+        setAlternatePhone(inv.header?.office?.alternatePhone || alternatePhone);
+        setCin(inv.header?.office?.cin || cin);
+        setMsme(inv.header?.office?.msme || msme);
+        setOfficeAddress(inv.header?.office?.officeAddress || officeAddress);
+
+        /* META */
+        setInvoiceNo(inv.invoiceNo);
+        setDateOfInvoice(inv.dateOfInvoice);
+        setPlaceOfSupply(inv.placeOfSupply);
+
+        /* BILLING */
+        setBilledToName(inv.billedTo?.name || "");
+        setBilledToAddress(inv.billedTo?.address || "");
+        setShipToName(inv.shipTo?.name || "");
+        setShipToAddress(inv.shipTo?.address || "");
+        setReceiverGstin(inv.receiverGstin || "");
+
+        /* ITEMS */
+        setItems(inv.items || [newItem("itm-1")]);
+
+        /* BANK */
+        setBankName(inv.bank?.bankName || "");
+        setAccountNo(inv.bank?.accountNo || "");
+        setIfsc(inv.bank?.ifsc || "");
+        setBranch(inv.bank?.branch || "");
+        setPincode(inv.bank?.pincode || "");
+      } catch (err) {
+        console.error(err);
+        setTopError("Failed to load invoice for edit");
+      }
+    };
+
+    fetchInvoice();
+  }, [id, isEdit]);
 
   const updateItem = (id: string, patch: Partial<IItem>) => {
     setItems((prev) =>
@@ -261,9 +313,10 @@ const CreateInvoice: React.FC = () => {
   /** Download generated PDF */
   const downloadPdf = async (invoiceId: string, filename?: string) => {
     try {
-      const resp = await api.get(`/invoices/${invoiceId}/pdf`, {
-        responseType: "blob",
-      });
+      const resp = await api.get(`/api/invoice/${invoiceId}/pdf`, {
+  responseType: "blob",
+});
+
       const blob = new Blob([resp.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -281,101 +334,94 @@ const CreateInvoice: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setTopError(null);
+ const handleSubmit = async (e?: React.FormEvent) => {
+  e?.preventDefault();
+  setTopError(null);
 
-    const v = validateQuick();
-    if (v) {
-      setTopError(v);
-      return;
-    }
+  const v = validateQuick();
+  if (v) {
+    setTopError(v);
+    return;
+  }
 
-    // 🔥 AUTO DATE ON BUTTON CLICK
-    const todayDate = new Date().toISOString().slice(0, 10);
+  const preparedItems = items.map((it) => ({
+    id: it.id,
+    Services: it.Services || "",
+    sacHsn: it.sacHsn || "",
+    specification: it.specification || "",
+    qty: Number(it.qty || 0),
+    rate: Number(it.rate || 0),
+    amount: Number((Number(it.qty || 0) * Number(it.rate || 0)).toFixed(2)),
+  }));
 
-    // prepare items
-    const preparedItems = items.map((it) => ({
-      id: it.id,
-      Services: it.Services || "",
-      sacHsn: it.sacHsn || "",
-      specification: it.specification || "",
-      qty: Number(it.qty || 0),
-      rate: Number(it.rate || 0),
-      amount: Number((Number(it.qty || 0) * Number(it.rate || 0)).toFixed(2)),
-    }));
-
-    const payload = {
-      header: {
-        panNo,
-        supplierGstin,
-        category,
-        office: {
-          officeEmail,
-          personalPhone,
-          alternatePhone,
-          cin,
-          msme,
-          officeAddress,
-        },
+  const payload = {
+    header: {
+      panNo,
+      supplierGstin,
+      category,
+      office: {
+        officeEmail,
+        personalPhone,
+        alternatePhone,
+        cin,
+        msme,
+        officeAddress,
       },
+    },
+    gstin,
+    dateOfInvoice,
+    placeOfSupply,
+    billedTo: { name: billedToName, address: billedToAddress },
+    shipTo: { name: shipToName, address: shipToAddress },
+    receiverGstin,
+    items: preparedItems,
+    totals: { subtotal, igst, cgst, sgst, grandTotal },
+    amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
+    bank: { bankName, accountNo, ifsc, branch, pincode },
+  };
 
-      invoiceNo,
-      gstin,
+  try {
+    setSaving(true);
 
-      // ✅ always today when button clicked
-      dateOfInvoice: dateOfInvoice || new Date().toISOString().slice(0, 10),
-
-      placeOfSupply,
-
-      billedTo: { name: billedToName, address: billedToAddress },
-      shipTo: { name: shipToName, address: shipToAddress },
-      receiverGstin,
-
-      items: preparedItems,
-      totals: { subtotal, igst, cgst, sgst, grandTotal },
-      amountInWords: numberToWords(Math.floor(grandTotal)) + " Rupees Only",
-
-      bank: { bankName, accountNo, ifsc, branch, pincode },
-    };
-
-    try {
-      setSaving(true);
+    if (isEdit) {
+      // ✅ UPDATE
+      await api.put(`/api/invoice/${id}`, payload);
+    } else {
+      // ✅ CREATE
       const resp = await api.post("/api/invoice/createinvoice", payload);
-
       const savedInvoice = resp.data;
-      const invoiceId = savedInvoice?._id || savedInvoice?.id;
 
-      if (invoiceId) {
+      if (savedInvoice?._id) {
         await downloadPdf(
-          invoiceId,
-          `invoice-${savedInvoice.invoiceNo || invoiceId}.pdf`
+          savedInvoice._id,
+          `invoice-${savedInvoice.invoiceNo}.pdf`
         );
       }
-
-      navigate("/admin/invoices");
-    } catch (err: any) {
-      console.error(err);
-      const msg =
-        err?.response?.data?.error ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to save invoice";
-      setTopError(msg);
-    } finally {
-      setSaving(false);
     }
-  };
-/** ---- Service Category Dropdown ---- */
-const SERVICE_CATEGORY_SAC_MAP: Record<string, string> = {
-  "Graphics": "998313",
-  "Website Development": "998314",
-  "Photography / Video": "998386",
-  "Digital Marketing": "998365",
-  "Event Management": "998596",
-  "Printing": "998912",
-  "Studio on Rent": "997212",
+
+    navigate("/admin/invoices");
+  } catch (err: any) {
+    const msg =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to save invoice";
+    setTopError(msg);
+  } finally {
+    setSaving(false);
+  }
 };
+
+  /** ---- Service Category Dropdown ---- */
+  const SERVICE_CATEGORY_SAC_MAP: Record<string, string> = {
+    Graphics: "998313",
+    "Website Development": "998314",
+    "Photography / Video": "998386",
+    "Digital Marketing": "998365",
+    "Event Management": "998596",
+    Printing: "998912",
+    "Studio on Rent": "997212",
+  };
 
   return (
     <div className={styles.page}>
@@ -492,7 +538,10 @@ const SERVICE_CATEGORY_SAC_MAP: Record<string, string> = {
 
         <header className={styles.header}>
           <div>
-            <h1 className={styles.title}>Create Invoice</h1>
+            <h1 className={styles.title}>
+              {isEdit ? "Edit Invoice" : "Create Invoice"}
+            </h1>
+
             <p className={styles.subtitle}>
               Fill fields exactly as the attached invoice.
             </p>
@@ -513,7 +562,11 @@ const SERVICE_CATEGORY_SAC_MAP: Record<string, string> = {
               disabled={!!quickError || saving}
               title={quickError ?? "Save invoice"}
             >
-              {saving ? "Saving..." : "Save & Generate"}
+              {saving
+                ? "Saving..."
+                : isEdit
+                ? "Update Invoice"
+                : "Save & Generate"}
             </button>
           </div>
         </header>
@@ -682,30 +735,30 @@ const SERVICE_CATEGORY_SAC_MAP: Record<string, string> = {
                       }
                     />
                     <select
-  className={styles.itemSmall}
-  value={it.serviceCategory}
-  onChange={(e) => {
-    const selected = e.target.value;
-    updateItem(it.id, {
-      serviceCategory: selected,
-      sacHsn: SERVICE_CATEGORY_SAC_MAP[selected] || "",
-    });
-  }}
->
-  <option value="">-- Select Type --</option>
-  {Object.keys(SERVICE_CATEGORY_SAC_MAP).map((type) => (
-    <option key={type} value={type}>
-      {type}
-    </option>
-  ))}
-</select>
+                      className={styles.itemSmall}
+                      value={it.serviceCategory}
+                      onChange={(e) => {
+                        const selected = e.target.value;
+                        updateItem(it.id, {
+                          serviceCategory: selected,
+                          sacHsn: SERVICE_CATEGORY_SAC_MAP[selected] || "",
+                        });
+                      }}
+                    >
+                      <option value="">-- Select Type --</option>
+                      {Object.keys(SERVICE_CATEGORY_SAC_MAP).map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
 
                     <input
-  className={styles.itemSmall}
-  placeholder="SAC/HSN"
-  value={it.sacHsn}
-  readOnly
-/>
+                      className={styles.itemSmall}
+                      placeholder="SAC/HSN"
+                      value={it.sacHsn}
+                      readOnly
+                    />
                     <input
                       type="number"
                       min={1}

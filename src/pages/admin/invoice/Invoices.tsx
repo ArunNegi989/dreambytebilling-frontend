@@ -163,11 +163,12 @@ const Invoices: React.FC = () => {
 
                   <td data-label="Actions" className={styles.actions}>
                     <button
-                      className={styles.viewBtn}
-                      onClick={() => navigate(`/admin/invoices/${inv._id}`)}
-                    >
-                      View
-                    </button>
+  className={styles.viewBtn}
+  onClick={() => navigate(`/admin/invoices/edit/${inv._id}`)}
+>
+  Edit
+</button>
+
 
                     <button
                       className={styles.deleteBtn}
