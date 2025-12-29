@@ -39,11 +39,12 @@ const Register: React.FC = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${API_BASE_URL}/api/auth/register`, {
-        name,
-        email,
-        password,
-      });
+      await axios.post(`${API_BASE_URL}/api/auth/register`, {
+  name,
+  email,
+  password,
+});
+
 
       toast.success("Account created successfully");
       navigate("/auth/login");

@@ -158,7 +158,7 @@ const CreateInvoice: React.FC = () => {
     "Dream Byte Solutions Pvt. Ltd 3rd Floor, above Bank of India, Sahastradhara Road, Near IT Park,Dehradun, Uttarakhand"
   );
 
-  const [gstin, setGstin] = useState(supplierGstin);
+  
   const [dateOfInvoice, setDateOfInvoice] = useState<string>(() =>
     new Date().toISOString().slice(0, 10)
   );
@@ -368,7 +368,7 @@ const CreateInvoice: React.FC = () => {
         officeAddress,
       },
     },
-    gstin,
+    gstin: supplierGstin,
     dateOfInvoice,
     placeOfSupply,
     billedTo: { name: billedToName, address: billedToAddress },

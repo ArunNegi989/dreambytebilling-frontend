@@ -63,8 +63,6 @@ const AdminDashboard: React.FC = () => {
     (q) => q.createdAt && new Date(q.createdAt).toDateString() === today
   ).length;
 
-  const paidBills = bills.filter((b) => b.paymentStatus === "Paid").length;
-  const unpaidBills = bills.filter((b) => b.paymentStatus !== "Paid").length;
 
   const quotationConversion =
     quotations.length > 0
